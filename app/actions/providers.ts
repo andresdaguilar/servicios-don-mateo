@@ -7,6 +7,8 @@ import { ProviderSource, ProviderStatus } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { normalizePhone } from "@/lib/phone";
+import { parseInstagram } from "@/lib/instagram";
+import { parseWebsite } from "@/lib/website";
 import { findProviderByPhone, findSimilarProviders, isPublicProviderStatus } from "@/lib/queries";
 import { canEditProvider } from "@/lib/permissions";
 import { requireUser } from "@/app/actions/auth";
@@ -17,11 +19,27 @@ const providerSchema = z.object({
   name: z.string().min(2, "Ingresá el nombre").max(80),
   description: z.string().max(600).optional(),
   phone: z.string().min(8, "Ingresá un teléfono"),
+  instagram: z.string().max(80).optional(),
+  website: z.string().max(200).optional(),
   zone: z.string().max(80).optional(),
   license: z.string().max(80).optional(),
   categoryIds: z.array(z.string()).min(1, "Elegí al menos un rubro"),
   source: z.enum(["neighbor", "self"]),
 });
+
+function parseContactExtras(data: { instagram?: string; website?: string }) {
+  const instagramRaw = data.instagram?.trim() ?? "";
+  const instagram = instagramRaw ? parseInstagram(instagramRaw) : null;
+  if (instagramRaw && !instagram) {
+    return { error: "El Instagram no parece válido. Usá el usuario, tipo @donmateo." };
+  }
+  const websiteRaw = data.website?.trim() ?? "";
+  const website = websiteRaw ? parseWebsite(websiteRaw) : null;
+  if (websiteRaw && !website) {
+    return { error: "La web no parece válida. Usá el sitio, tipo donmateo.com.ar." };
+  }
+  return { instagram, website };
+}
 
 async function uploadPhotos(formData: FormData) {
   const files = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
@@ -50,6 +68,8 @@ export async function createProviderAction(
       name: formData.get("name"),
       description: String(formData.get("description") ?? "") || undefined,
       phone: formData.get("phone"),
+      instagram: String(formData.get("instagram") ?? "") || undefined,
+      website: String(formData.get("website") ?? "") || undefined,
       zone: String(formData.get("zone") ?? "") || undefined,
       license: String(formData.get("license") ?? "") || undefined,
       categoryIds,
@@ -62,6 +82,10 @@ export async function createProviderAction(
 
     const phone = normalizePhone(parsed.data.phone);
     if (phone.length < 10) return { error: "El teléfono no parece válido." };
+
+    const extras = parseContactExtras(parsed.data);
+    if ("error" in extras) return extras;
+    const { instagram, website } = extras;
 
     const existing = await findProviderByPhone(phone);
     if (existing) {
@@ -112,6 +136,8 @@ export async function createProviderAction(
         description: parsed.data.description?.trim() ?? "",
         phone,
         whatsapp: phone,
+        instagram,
+        website,
         zone: parsed.data.zone?.trim() ?? "",
         license: parsed.data.license?.trim() || null,
         status,
@@ -168,6 +194,8 @@ export async function updateProviderAction(
       name: formData.get("name"),
       description: String(formData.get("description") ?? "") || undefined,
       phone: formData.get("phone"),
+      instagram: String(formData.get("instagram") ?? "") || undefined,
+      website: String(formData.get("website") ?? "") || undefined,
       zone: String(formData.get("zone") ?? "") || undefined,
       license: String(formData.get("license") ?? "") || undefined,
       categoryIds,
@@ -178,6 +206,11 @@ export async function updateProviderAction(
 
     const phone = normalizePhone(parsed.data.phone);
     if (phone.length < 10) return { error: "El teléfono no parece válido." };
+
+    const extras = parseContactExtras(parsed.data);
+    if ("error" in extras) return extras;
+    const { instagram, website } = extras;
+
     if (phone !== provider.phone) {
       const clash = await findProviderByPhone(phone);
       if (clash && clash.id !== provider.id) {
@@ -200,6 +233,8 @@ export async function updateProviderAction(
           license: parsed.data.license?.trim() || null,
           phone,
           whatsapp: phone,
+          instagram,
+          website,
           status: nextStatus,
         },
       });

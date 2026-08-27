@@ -31,6 +31,8 @@ export default async function EditarPrestadorPage({
       initial={{
         name: provider.name,
         phone: provider.phone,
+        instagram: provider.instagram ?? "",
+        website: provider.website ?? "",
         zone: provider.zone,
         license: provider.license ?? "",
         description: provider.description,

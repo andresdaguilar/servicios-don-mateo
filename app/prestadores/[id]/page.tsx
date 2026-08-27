@@ -6,7 +6,9 @@ import {
   Phone,
   BadgeCheck,
   MessageCircle,
+  Globe,
 } from "lucide-react";
+import { InstagramIcon } from "@/components/ui/InstagramIcon";
 import { auth } from "@/auth";
 import { Avatar } from "@/components/ui/Avatar";
 import { RatingBadge } from "@/components/ui/RatingBadge";
@@ -21,6 +23,8 @@ import {
   listingStatus,
 } from "@/lib/queries";
 import { telLink, whatsappLink } from "@/lib/phone";
+import { formatInstagram, instagramLink } from "@/lib/instagram";
+import { formatWebsite } from "@/lib/website";
 import { tagLabel, timeAgo } from "@/lib/utils";
 import { toggleFavoriteAction } from "@/app/actions/social";
 import { setProviderStatus } from "@/app/actions/moderation";
@@ -177,6 +181,32 @@ export default async function ProviderPage({
             <p className="mt-2 text-sm text-carbon/50">Sin descripción todavía.</p>
           )}
           <ul className="mt-3 space-y-1.5 text-sm text-carbon/80">
+            {provider.website && (
+              <li>
+                <a
+                  href={provider.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-brand-ink"
+                >
+                  <Globe className="h-4 w-4" />
+                  {formatWebsite(provider.website)}
+                </a>
+              </li>
+            )}
+            {provider.instagram && (
+              <li>
+                <a
+                  href={instagramLink(provider.instagram)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-brand-ink"
+                >
+                  <InstagramIcon className="h-4 w-4" />
+                  {formatInstagram(provider.instagram)}
+                </a>
+              </li>
+            )}
             {provider.license && (
               <li className="flex items-center gap-2">
                 <BadgeCheck className="h-4 w-4 text-brand-ink" />
@@ -305,24 +335,72 @@ export default async function ProviderPage({
         </div>
 
         <div className="sticky bottom-0 z-10 bg-paper px-4 py-3">
-        <div className="flex gap-2">
-          <a
-            href={whatsappLink(provider.whatsapp || provider.phone)}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 text-[15px] font-semibold text-white"
-          >
-            <MessageCircle className="h-5 w-5" />
-            WhatsApp
-          </a>
-          <a
-            href={telLink(provider.phone)}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-brand bg-card py-3.5 text-[15px] font-semibold text-brand-ink"
-          >
-            <Phone className="h-5 w-5" />
-            Llamar
-          </a>
-        </div>
+          <ContactBar
+            phone={provider.whatsapp || provider.phone}
+            instagram={provider.instagram}
+            website={provider.website}
+          />
         </div>
       </div>
+  );
+}
+
+function ContactBar({
+  phone,
+  instagram,
+  website,
+}: {
+  phone: string;
+  instagram: string | null;
+  website: string | null;
+}) {
+  const extras = Boolean(instagram || website);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        <a
+          href={whatsappLink(phone)}
+          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 text-[15px] font-semibold text-white"
+        >
+          <MessageCircle className="h-5 w-5" />
+          WhatsApp
+        </a>
+        <a
+          href={telLink(phone)}
+          className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-brand bg-card py-3.5 text-[15px] font-semibold text-brand-ink"
+        >
+          <Phone className="h-5 w-5" />
+          Llamar
+        </a>
+      </div>
+      {extras ? (
+        <div className="flex gap-2">
+          {instagram ? (
+            <a
+              href={instagramLink(instagram)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#C13584] py-2.5 text-[13px] font-semibold text-white"
+            >
+              <InstagramIcon className="h-4 w-4" />
+              Instagram
+            </a>
+          ) : null}
+          {website ? (
+            <a
+              href={website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-mist py-2.5 text-[13px] font-semibold text-brand-ink"
+            >
+              <Globe className="h-4 w-4" />
+              Web
+            </a>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
 

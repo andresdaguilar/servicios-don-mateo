@@ -97,6 +97,8 @@ model Provider {
   description        String         @default("")
   phone              String         @unique
   whatsapp           String?
+  instagram          String?
+  website            String?
   zone               String         @default("")
   license            String?
   status             ProviderStatus @default(pending)

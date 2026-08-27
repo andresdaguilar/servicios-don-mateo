@@ -88,6 +88,18 @@ export function ProviderForm({
           required
           invalid={missing.has("phone")}
         />
+        <Field
+          name="instagram"
+          label="Instagram"
+          placeholder="@donmateo o instagram.com/donmateo"
+          optional
+        />
+        <Field
+          name="website"
+          label="Web"
+          placeholder="donmateo.com.ar"
+          optional
+        />
         <fieldset>
           <legend className="text-sm font-medium">
             Rubro <RequiredMark />

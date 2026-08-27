@@ -4,6 +4,8 @@ import { FormEvent, useActionState, useState } from "react";
 import { updateProviderAction } from "@/app/actions/providers";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { formatPhone } from "@/lib/phone";
+import { formatInstagram } from "@/lib/instagram";
+import { formatWebsite } from "@/lib/website";
 import { cn } from "@/lib/utils";
 
 type Cat = { id: string; name: string };
@@ -18,6 +20,8 @@ export function EditProviderForm({
   initial: {
     name: string;
     phone: string;
+    instagram: string;
+    website: string;
     zone: string;
     license: string;
     description: string;
@@ -93,6 +97,24 @@ export function EditProviderForm({
             "mt-1 w-full rounded-2xl bg-mist px-3 py-3 text-sm outline-none",
             missing.has("phone") && "ring-2 ring-coral",
           )}
+        />
+      </label>
+      <label className="text-sm font-medium">
+        Instagram <span className="ml-1 text-xs font-normal text-carbon/45">Opcional</span>
+        <input
+          name="instagram"
+          defaultValue={initial.instagram ? formatInstagram(initial.instagram) : ""}
+          placeholder="@donmateo o instagram.com/donmateo"
+          className="mt-1 w-full rounded-2xl bg-mist px-3 py-3 text-sm outline-none"
+        />
+      </label>
+      <label className="text-sm font-medium">
+        Web <span className="ml-1 text-xs font-normal text-carbon/45">Opcional</span>
+        <input
+          name="website"
+          defaultValue={initial.website ? formatWebsite(initial.website) : ""}
+          placeholder="donmateo.com.ar"
+          className="mt-1 w-full rounded-2xl bg-mist px-3 py-3 text-sm outline-none"
         />
       </label>
       <fieldset>
