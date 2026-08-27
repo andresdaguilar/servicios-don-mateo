@@ -11,6 +11,13 @@ const WRITE_PREFIXES = [
   "/cuenta",
 ];
 
+function allowScreenshots(res: NextResponse) {
+  // `no-store` hace que Android/Samsung bloqueen capturas ("políticas de privacidad").
+  res.headers.set("Cache-Control", "private, no-cache, max-age=0, must-revalidate");
+  res.headers.set("Permissions-Policy", "display-capture=*");
+  return res;
+}
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = Boolean(req.auth);
@@ -46,16 +53,11 @@ export default auth((req) => {
     return NextResponse.redirect(url);
   }
 
-  return NextResponse.next();
+  return allowScreenshots(NextResponse.next());
 });
 
 export const config = {
   matcher: [
-    "/moderacion/:path*",
-    "/prestadores/nuevo",
-    "/prestadores/:id/editar",
-    "/recomendar/:path*",
-    "/favoritos",
-    "/cuenta/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

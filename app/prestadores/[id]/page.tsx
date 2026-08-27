@@ -29,6 +29,7 @@ import { tagLabel, timeAgo } from "@/lib/utils";
 import { toggleFavoriteAction } from "@/app/actions/social";
 import { setProviderStatus } from "@/app/actions/moderation";
 import { canEditProvider } from "@/lib/permissions";
+import { listingPhotos } from "@/lib/photos";
 
 export default async function ProviderPage({
   params,
@@ -44,7 +45,8 @@ export default async function ProviderPage({
 
   const session = await auth();
   const fav = session?.user?.id ? await isFavorite(session.user.id, id) : false;
-  const photo = provider.photos[0]?.url;
+  const { avatarUrl, gallery } = listingPhotos(provider.photos);
+  const favCount = provider._count.favorites;
   const firstName = provider.name.split(" ")[0];
   const isMod = session?.user?.role === "moderator";
   const canEdit = canEditProvider(session?.user, provider);
@@ -102,7 +104,7 @@ export default async function ProviderPage({
 
         <div className="mt-4 flex flex-col items-center px-4 text-center">
           <div className="relative">
-            <Avatar name={provider.name} src={photo} size="lg" />
+            <Avatar name={provider.name} src={avatarUrl} size="lg" />
             {session?.user ? (
               <form
                 action={toggleFavoriteAction.bind(null, id)}
@@ -124,6 +126,17 @@ export default async function ProviderPage({
           <h1 className="mt-3 font-serif text-2xl font-semibold text-carbon">{provider.name}</h1>
           <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
             <RatingBadge value={provider.stats.avg} count={provider.stats.count} />
+            <span className="inline-flex items-center gap-1 text-xs text-carbon/55">
+              <Heart
+                className={`h-3.5 w-3.5 ${fav ? "fill-coral text-coral" : ""}`}
+                strokeWidth={1.75}
+              />
+              {favCount === 0
+                ? "Sin favoritos aún"
+                : favCount === 1
+                  ? "1 favorito"
+                  : `${favCount} favoritos`}
+            </span>
             {provider.zone ? (
               <span className="inline-flex items-center gap-1 text-xs text-carbon/55">
                 <MapPin className="h-3.5 w-3.5" />
@@ -163,6 +176,23 @@ export default async function ProviderPage({
             </div>
           )}
         </div>
+
+        {gallery.length > 0 && (
+          <section className="mx-4 mt-6">
+            <h2 className="mb-3 font-semibold text-carbon">Fotos</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {gallery.map((photo) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={photo.url}
+                  src={photo.url}
+                  alt={`Foto de ${provider.name}`}
+                  className="aspect-[4/3] w-full rounded-2xl object-cover ring-1 ring-line"
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="mx-4 mt-6 grid grid-cols-3 gap-2">
           <TrustStat label="Lo contraté" value={provider.stats.hired} />

@@ -100,7 +100,27 @@ export async function loginAction(
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Teléfono o contraseña incorrectos." };
+      const normalized = parseUserPhone(phone);
+      const exists = normalized
+        ? await prisma.user.findUnique({
+            where: { phone: normalized },
+            select: { id: true },
+          })
+        : null;
+      if (!exists) {
+        return {
+          error:
+            "No hay una cuenta con ese celular. ¿Ya te registraste? Si es tu primera vez, creá tu cuenta con el código del grupo.",
+          href: "/registro",
+          hrefLabel: "Registrarme",
+        };
+      }
+      return {
+        error:
+          "La contraseña no es esa. ¿Ya te registraste? Si es tu primera vez, creá tu cuenta.",
+        href: "/registro",
+        hrefLabel: "Registrarme",
+      };
     }
     throw error;
   }

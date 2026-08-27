@@ -2,6 +2,7 @@
 
 import { FormEvent, useActionState, useState } from "react";
 import { updateProviderAction } from "@/app/actions/providers";
+import { PhotoFields } from "@/components/forms/PhotoFields";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { formatPhone } from "@/lib/phone";
 import { formatInstagram } from "@/lib/instagram";
@@ -26,6 +27,8 @@ export function EditProviderForm({
     license: string;
     description: string;
     categoryIds: string[];
+    avatarUrl: string | null;
+    galleryUrls: string[];
   };
 }) {
   const [state, action] = useActionState(
@@ -35,7 +38,6 @@ export function EditProviderForm({
   const [rubros, setRubros] = useState<string[]>(initial.categoryIds);
   const [localError, setLocalError] = useState<string | null>(null);
   const [missing, setMissing] = useState<Set<string>>(new Set());
-  const [photoLabel, setPhotoLabel] = useState("Ninguna nueva");
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     const data = new FormData(e.currentTarget);
@@ -174,32 +176,10 @@ export function EditProviderForm({
           className="mt-1 w-full rounded-2xl bg-mist px-3 py-3 text-sm outline-none"
         />
       </label>
-      <label className="text-sm font-medium">
-        Sumar fotos <span className="ml-1 text-xs font-normal text-carbon/45">Opcional</span>
-        <span className="mt-1 flex items-center gap-2">
-          <span className="rounded-2xl bg-mist px-3 py-3 text-sm font-normal text-brand-ink">
-            Elegir fotos
-          </span>
-          <span className="text-xs font-normal text-carbon/50">{photoLabel}</span>
-          <input
-            type="file"
-            name="photos"
-            accept="image/*"
-            multiple
-            className="sr-only"
-            onChange={(e) => {
-              const n = e.target.files?.length ?? 0;
-              setPhotoLabel(
-                n === 0
-                  ? "Ninguna nueva"
-                  : n === 1
-                    ? "1 foto nueva"
-                    : `${n} fotos nuevas`,
-              );
-            }}
-          />
-        </span>
-      </label>
+      <PhotoFields
+        currentAvatar={initial.avatarUrl}
+        currentGallery={initial.galleryUrls}
+      />
       {error && (
         <div className="mt-3 rounded-2xl bg-coral/15 px-3.5 py-3">
           <p className="text-sm font-semibold text-coral">{error}</p>

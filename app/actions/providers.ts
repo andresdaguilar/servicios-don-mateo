@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { put } from "@vercel/blob";
-import { ProviderSource, ProviderStatus } from "@prisma/client";
+import { PhotoKind, ProviderSource, ProviderStatus } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { normalizePhone } from "@/lib/phone";
@@ -41,20 +41,34 @@ function parseContactExtras(data: { instagram?: string; website?: string }) {
   return { instagram, website };
 }
 
-async function uploadPhotos(formData: FormData) {
-  const files = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
-  if (files.length === 0) return [];
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return [];
+async function uploadNamedFiles(formData: FormData, field: string, max: number) {
+  const files = formData.getAll(field).filter((f): f is File => f instanceof File && f.size > 0);
+  if (files.length === 0) return { urls: [] as string[] };
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return {
+      urls: [] as string[],
+      error: "No se pudieron subir las fotos ahora. Probá de nuevo en un rato.",
+    };
+  }
 
   const urls: string[] = [];
-  for (const file of files.slice(0, 4)) {
-    const blob = await put(`prestadores/${Date.now()}-${file.name}`, file, {
+  for (const file of files.slice(0, max)) {
+    const safe = file.name.replace(/[^\w.\-]+/g, "_").slice(0, 80) || "foto";
+    const blob = await put(`prestadores/${field}/${Date.now()}-${safe}`, file, {
       access: "public",
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
     urls.push(blob.url);
   }
-  return urls;
+  return { urls };
+}
+
+async function uploadListingImages(formData: FormData) {
+  const avatar = await uploadNamedFiles(formData, "avatar", 1);
+  if (avatar.error) return avatar;
+  const gallery = await uploadNamedFiles(formData, "photos", 4);
+  if (gallery.error) return gallery;
+  return { avatarUrls: avatar.urls, galleryUrls: gallery.urls };
 }
 
 export async function createProviderAction(
@@ -128,7 +142,13 @@ export async function createProviderAction(
       }
     }
 
-    const photos = await uploadPhotos(formData);
+    const images = await uploadListingImages(formData);
+    if ("error" in images) return { error: images.error };
+
+    const photoRows = [
+      ...(images.avatarUrls ?? []).map((url) => ({ url, kind: PhotoKind.profile })),
+      ...(images.galleryUrls ?? []).map((url) => ({ url, kind: PhotoKind.gallery })),
+    ];
 
     const provider = await prisma.provider.create({
       data: {
@@ -149,9 +169,7 @@ export async function createProviderAction(
         categories: {
           create: parsed.data.categoryIds.map((categoryId) => ({ categoryId })),
         },
-        photos: photos.length
-          ? { create: photos.map((url) => ({ url })) }
-          : undefined,
+        photos: photoRows.length ? { create: photoRows } : undefined,
       },
     });
 
@@ -218,7 +236,9 @@ export async function updateProviderAction(
       }
     }
 
-    const photos = await uploadPhotos(formData);
+    const images = await uploadListingImages(formData);
+    if ("error" in images) return { error: images.error };
+
     const sensitive = phone !== provider.phone || parsed.data.name.trim() !== provider.name;
     const nextStatus =
       !isMod && (isOwner || isCreator) && sensitive ? ProviderStatus.pending : provider.status;
@@ -242,9 +262,21 @@ export async function updateProviderAction(
       await tx.providerCategory.createMany({
         data: parsed.data.categoryIds.map((categoryId) => ({ providerId, categoryId })),
       });
-      if (photos.length) {
+      if (images.avatarUrls?.length) {
+        await tx.providerPhoto.deleteMany({
+          where: { providerId, kind: PhotoKind.profile },
+        });
+        await tx.providerPhoto.create({
+          data: { providerId, url: images.avatarUrls[0]!, kind: PhotoKind.profile },
+        });
+      }
+      if (images.galleryUrls?.length) {
         await tx.providerPhoto.createMany({
-          data: photos.map((url) => ({ providerId, url })),
+          data: images.galleryUrls.map((url) => ({
+            providerId,
+            url,
+            kind: PhotoKind.gallery,
+          })),
         });
       }
     });

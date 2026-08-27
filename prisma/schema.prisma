@@ -30,6 +30,11 @@ enum ProviderSource {
   self
 }
 
+enum PhotoKind {
+  profile
+  gallery
+}
+
 enum ReportReason {
   incorrect_data
   outdated
@@ -141,11 +146,12 @@ model ProviderCategory {
 }
 
 model ProviderPhoto {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   url        String
+  kind       PhotoKind @default(gallery)
   providerId String
-  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  provider   Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
 }
 
 model Recommendation {

@@ -6,10 +6,11 @@ import { Avatar } from "@/components/ui/Avatar";
 import { RatingBadge } from "@/components/ui/RatingBadge";
 import { CategoryGlyph } from "@/components/ui/CategoryGlyph";
 import { LinkPending } from "@/components/navigation/LinkPending";
+import { listingPhotos } from "@/lib/photos";
 import type { ProviderCardModel } from "@/lib/queries";
 
 export function ProviderCard({ provider }: { provider: ProviderCardModel }) {
-  const photo = provider.photos[0]?.url;
+  const photo = listingPhotos(provider.photos).avatarUrl;
   const categories = provider.categories.map((c) => c.category);
 
   return (

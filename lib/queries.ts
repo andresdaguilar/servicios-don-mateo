@@ -5,7 +5,7 @@ import { isSimilarName } from "@/lib/duplicates";
 
 const providerInclude = {
   categories: { include: { category: true } },
-  photos: true,
+  photos: { orderBy: { createdAt: "asc" as const } },
   recommendations: {
     include: { tags: true, user: { select: { displayName: true } } },
     orderBy: { createdAt: "desc" as const },

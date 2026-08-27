@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { EditProviderForm } from "@/components/forms/EditProviderForm";
 import { getCategories, getProviderById } from "@/lib/queries";
 import { canEditProvider } from "@/lib/permissions";
+import { listingPhotos } from "@/lib/photos";
 
 export default async function EditarPrestadorPage({
   params,
@@ -37,6 +38,8 @@ export default async function EditarPrestadorPage({
         license: provider.license ?? "",
         description: provider.description,
         categoryIds: provider.categories.map((c) => c.categoryId),
+        avatarUrl: listingPhotos(provider.photos).avatarUrl,
+        galleryUrls: listingPhotos(provider.photos).gallery.map((p) => p.url),
       }}
     />
   );

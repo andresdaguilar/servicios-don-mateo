@@ -3,6 +3,7 @@
 import { FormEvent, useActionState, useState } from "react";
 import Link from "next/link";
 import { createProviderAction } from "@/app/actions/providers";
+import { PhotoFields } from "@/components/forms/PhotoFields";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +21,6 @@ export function ProviderForm({
   const [rubros, setRubros] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
   const [missing, setMissing] = useState<Set<string>>(new Set());
-  const [photoLabel, setPhotoLabel] = useState("Ninguna seleccionada");
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     const data = new FormData(e.currentTarget);
@@ -149,32 +149,7 @@ export function ProviderForm({
             className="mt-1 w-full rounded-2xl bg-mist px-3 py-3 text-sm outline-none"
           />
         </label>
-        <label className="text-sm font-medium">
-          Fotos <OptionalMark />
-          <span className="mt-1 flex items-center gap-2">
-            <span className="rounded-2xl bg-mist px-3 py-3 text-sm font-normal text-brand-ink">
-              Elegir fotos
-            </span>
-            <span className="text-xs font-normal text-carbon/50">{photoLabel}</span>
-            <input
-              type="file"
-              name="photos"
-              accept="image/*"
-              multiple
-              className="sr-only"
-              onChange={(e) => {
-                const n = e.target.files?.length ?? 0;
-                setPhotoLabel(
-                  n === 0
-                    ? "Ninguna seleccionada"
-                    : n === 1
-                      ? "1 foto seleccionada"
-                      : `${n} fotos seleccionadas`,
-                );
-              }}
-            />
-          </span>
-        </label>
+        <PhotoFields />
 
         {(error || state?.href) && (
           <div className="mt-3 rounded-2xl bg-coral/15 px-3.5 py-3">

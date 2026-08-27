@@ -10,7 +10,7 @@ export function Avatar({
   size?: "sm" | "md" | "lg";
 }) {
   const dim =
-    size === "sm" ? "h-10 w-10 text-xs" : size === "lg" ? "h-20 w-20 text-xl" : "h-12 w-12 text-sm";
+    size === "sm" ? "h-10 w-10 text-xs" : size === "lg" ? "h-24 w-24 text-2xl" : "h-12 w-12 text-sm";
 
   if (src) {
     return (
