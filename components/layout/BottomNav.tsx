@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Plus, UserRound } from "lucide-react";
+import { Home, Search, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/", label: "Inicio", icon: Home, exact: true },
-  { href: "/buscar", label: "Buscar", icon: Search },
   { href: "/prestadores/nuevo", label: "Publicar", icon: Plus, fab: true },
-  { href: "/cuenta", label: "Perfil", icon: UserRound },
+  { href: "/buscar", label: "Buscar", icon: Search },
 ] as const;
 
 export function BottomNav() {
@@ -17,7 +16,7 @@ export function BottomNav() {
 
   return (
     <nav className="z-30 shrink-0 border-t border-black/[0.06] bg-white pb-[env(safe-area-inset-bottom)]">
-      <ul className="grid grid-cols-4 px-1 pt-1">
+      <ul className="grid grid-cols-3 px-1 pt-1">
         {ITEMS.map((item) => {
           const active =
             "exact" in item && item.exact

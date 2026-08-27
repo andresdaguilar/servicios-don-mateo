@@ -2,9 +2,9 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { AppShell } from "@/components/layout/AppShell";
 import { SearchBar } from "@/components/ui/SearchBar";
+import { CategorySelect } from "@/components/ui/CategorySelect";
 import { ProviderCard } from "@/components/ui/ProviderCard";
 import { getCategories, searchProviders } from "@/lib/queries";
-import { cn } from "@/lib/utils";
 
 export default async function BuscarPage({
   searchParams,
@@ -18,21 +18,21 @@ export default async function BuscarPage({
   ]);
   await auth();
 
+  const selected = categories.find((c) => c.slug === rubro);
+
   return (
     <AppShell backHref="/">
       <div className="px-4 pt-4">
-        <SearchBar defaultValue={q ?? ""} showFilters />
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
-          <Chip href="/buscar" active={!rubro}>
-            Todos
-          </Chip>
-          {categories
-            .filter((c) => !["salud", "seguridad", "administracion"].includes(c.slug))
-            .map((c) => (
-              <Chip key={c.id} href={`/buscar?rubro=${c.slug}`} active={rubro === c.slug}>
-                {c.name}
-              </Chip>
-            ))}
+        <h1 className="font-serif text-2xl font-semibold">
+          {selected?.name ?? "Todas las categorías"}
+        </h1>
+        <SearchBar className="mt-3" defaultValue={q ?? ""} rubro={rubro} />
+        <div className="mt-3">
+          <CategorySelect
+            categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
+            value={rubro}
+            q={q}
+          />
         </div>
       </div>
 
@@ -55,27 +55,5 @@ export default async function BuscarPage({
         )}
       </div>
     </AppShell>
-  );
-}
-
-function Chip({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium",
-        active ? "bg-brand text-white" : "bg-white text-carbon ring-1 ring-black/[0.08]",
-      )}
-    >
-      {children}
-    </Link>
   );
 }

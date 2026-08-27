@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { Wordmark } from "@/components/brand/Logo";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { HeaderProfile } from "@/components/layout/HeaderProfile";
 import { cn } from "@/lib/utils";
 
 export function AppShell({
@@ -36,7 +37,10 @@ export function AppShell({
           <div className="min-w-0 flex-1">
             <Wordmark compact={Boolean(backHref)} />
           </div>
-          {right ? <div className="flex shrink-0 items-center">{right}</div> : null}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {right}
+            <HeaderProfile />
+          </div>
         </header>
         <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</main>
         <BottomNav />

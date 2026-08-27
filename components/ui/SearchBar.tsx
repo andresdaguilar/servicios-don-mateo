@@ -2,18 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function SearchBar({
   defaultValue = "",
   placeholder = "¿Qué necesitás?",
-  showFilters = false,
+  rubro,
   className,
 }: {
   defaultValue?: string;
   placeholder?: string;
-  showFilters?: boolean;
+  rubro?: string;
   className?: string;
 }) {
   const router = useRouter();
@@ -23,7 +23,8 @@ export function SearchBar({
     e.preventDefault();
     const params = new URLSearchParams();
     if (q.trim()) params.set("q", q.trim());
-    router.push(`/buscar${params.size ? `?${params}` : ""}`);
+    if (rubro) params.set("rubro", rubro);
+    router.push(`/buscar${params.size ? `?${params.toString()}` : ""}`);
   }
 
   return (
@@ -38,11 +39,6 @@ export function SearchBar({
           className="w-full bg-transparent text-[15px] outline-none placeholder:text-carbon/40"
         />
       </label>
-      {showFilters && (
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-mist text-brand">
-          <SlidersHorizontal className="h-5 w-5" strokeWidth={1.75} />
-        </span>
-      )}
     </form>
   );
 }
