@@ -35,11 +35,7 @@ export function ProviderForm({
       e.preventDefault();
       setMissing(next);
       setLocalError(friendlyError(next));
-      return;
     }
-
-    setMissing(new Set());
-    setLocalError(null);
   }
 
   const error = localError ?? state?.error ?? null;
@@ -168,28 +164,19 @@ export function ProviderForm({
           </span>
         </label>
 
-        <div
-          className={
-            error
-              ? "mt-3 rounded-2xl bg-coral/15 px-3.5 py-3"
-              : "mt-3 rounded-2xl bg-brand-soft px-3.5 py-3"
-          }
-        >
-          <p className={error ? "text-sm text-carbon/80" : "text-sm text-brand-ink"}>
-            Para publicar hace falta <span className="font-semibold">nombre</span>,{" "}
-            <span className="font-semibold">teléfono</span> y{" "}
-            <span className="font-semibold">al menos un rubro</span>. El resto es opcional.
-          </p>
-          {error && <p className="mt-2 text-sm font-semibold text-coral">{error}</p>}
-          {state?.href && (
-            <Link
-              href={state.href}
-              className="mt-2 inline-flex text-sm font-semibold text-brand-ink"
-            >
-              {state.hrefLabel ?? "Ver ficha"}
-            </Link>
-          )}
-        </div>
+        {(error || state?.href) && (
+          <div className="mt-3 rounded-2xl bg-coral/15 px-3.5 py-3">
+            {error && <p className="text-sm font-semibold text-coral">{error}</p>}
+            {state?.href && (
+              <Link
+                href={state.href}
+                className="mt-2 inline-flex text-sm font-semibold text-brand-ink"
+              >
+                {state.hrefLabel ?? "Ver ficha"}
+              </Link>
+            )}
+          </div>
+        )}
         <SubmitButton
           pendingLabel="Publicando…"
           className="rounded-2xl bg-brand py-3.5 font-semibold text-white"

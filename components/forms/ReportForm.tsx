@@ -21,9 +21,7 @@ export function ReportForm({ providerId }: { providerId: string }) {
     if (details.length < 8) {
       e.preventDefault();
       setLocalError("Contanos un poco más qué te resultó extraño.");
-      return;
     }
-    setLocalError(null);
   }
 
   const error = localError ?? state?.error ?? null;

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
@@ -16,39 +15,16 @@ export function SubmitButton({
   pendingOnlySpinner?: boolean;
 }) {
   const { pending } = useFormStatus();
-  const [locked, setLocked] = useState(false);
-  const started = useRef(false);
-  const busy = pending || locked;
-
-  useEffect(() => {
-    if (pending) started.current = true;
-    if (started.current && !pending) {
-      started.current = false;
-      setLocked(false);
-    }
-  }, [pending]);
-
-  useEffect(() => {
-    if (!locked || started.current) return;
-    const id = window.setTimeout(() => {
-      if (!started.current) setLocked(false);
-    }, 700);
-    return () => window.clearTimeout(id);
-  }, [locked]);
 
   return (
     <button
       type="submit"
       {...props}
-      disabled={busy || props.disabled}
-      aria-busy={busy}
-      onClick={(e) => {
-        props.onClick?.(e);
-        if (!e.defaultPrevented) setLocked(true);
-      }}
-      className={cn(className, busy && "pointer-events-none opacity-70")}
+      disabled={pending || props.disabled}
+      aria-busy={pending}
+      className={cn(className, pending && "pointer-events-none opacity-70")}
     >
-      {busy ? (
+      {pending ? (
         pendingOnlySpinner ? (
           <Spinner className="h-4 w-4" />
         ) : (
