@@ -6,43 +6,28 @@ Agenda comunitaria para encontrar, recomendar y publicar prestadores de confianz
 
 ## Stack
 
-Next.js · Tailwind · Prisma · Postgres (Neon en producción) · Auth.js · Vercel
+Next.js · Tailwind · Prisma · Neon (Postgres) · Auth.js · Vercel
 
 ## Desarrollo local
+
+Local y producción usan **la misma base en Neon**. No hace falta Docker ni Postgres en la máquina.
 
 1. Copiá el entorno:
 
 ```bash
 cp .env.example .env
-openssl rand -base64 32   # pegalo en AUTH_SECRET
 ```
 
-2. Levantá Postgres. Con Docker:
+Completá `DATABASE_URL` y `DIRECT_URL` con las URLs de Neon, y `AUTH_SECRET` (`openssl rand -base64 32`).
 
-```bash
-docker compose up -d
-```
-
-Sin Docker, con Homebrew:
-
-```bash
-brew install postgresql@16
-brew services start postgresql@16
-createuser -s donmateo
-createdb -O donmateo donmateo
-psql -d donmateo -c "ALTER USER donmateo WITH PASSWORD 'donmateo';"
-```
-
-En producción usá [Neon](https://neon.tech): copiá el connection string pooled a `DATABASE_URL` y el directo a `DIRECT_URL`.
-
-3. Creá las tablas y las categorías:
+2. Si las tablas todavía no existen:
 
 ```bash
 npx prisma db push
 npx prisma db seed
 ```
 
-4. Arrancá la app:
+3. Arrancá la app:
 
 ```bash
 npm run dev
@@ -56,18 +41,25 @@ El seed solo carga categorías. No hay usuarios ni prestadores de prueba.
 
 ## Producción (Neon + Vercel)
 
-1. Creá una base en [Neon](https://neon.tech) y copiá el connection string pooled a `DATABASE_URL` y el directo a `DIRECT_URL`.
-2. En Vercel, configurá:
+Si el deploy abre y ves **404 NOT_FOUND** de Vercel (fondo negro, no la app), casi siempre es una de estas:
 
-- `DATABASE_URL`
-- `DIRECT_URL`
-- `AUTH_SECRET`
-- `AUTH_URL` (URL pública)
-- `COMMUNITY_ACCESS_CODE`
-- `ADMIN_PHONE`
-- `BLOB_READ_WRITE_TOKEN` (opcional, para fotos)
+1. **Framework Preset no es Next.js.** En Vercel → Project → Settings → General → Build & Development Settings → Framework Preset = **Next.js**. Después Redeploy.
+2. **Faltan variables de entorno** y el build falló (no hay deployment de producción). Agregá las de abajo en Settings → Environment Variables, para Production, y volvé a desplegar.
+3. **AUTH_URL apunta a localhost.** Tiene que ser la URL de Vercel, por ejemplo `https://servicios-don-mateo.vercel.app`.
 
-3. Deploy. En el primer deploy corré `npx prisma db push` y `npx prisma db seed` contra Neon, o usá `prisma migrate deploy` cuando agregues migraciones.
+Variables a cargar en Vercel (las mismas de `.env`, no subas el archivo):
+
+- `DATABASE_URL` — connection string **pooled** de Neon (`...-pooler...`)
+- `DIRECT_URL` — connection string **directa** de Neon (sin `-pooler`)
+- `AUTH_SECRET` — un secreto random (`openssl rand -base64 32`)
+- `AUTH_URL` — `https://TU-PROYECTO.vercel.app`
+- `COMMUNITY_ACCESS_CODE` — `DONMATEO2026`
+- `ADMIN_PHONE` — `5491100000001`
+- `BLOB_READ_WRITE_TOKEN` — opcional, para fotos
+
+Después de guardar las variables: **Deployments → ⋮ → Redeploy** (sin cache).
+
+El schema de Neon ya está creado en local con `prisma db push`. No hace falta volver a seedear datos de demo.
 
 ## Recorrido principal
 

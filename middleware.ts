@@ -8,7 +8,7 @@ const WRITE_PREFIXES = [
   "/cuenta",
 ];
 
-export const proxy = auth((req) => {
+export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = Boolean(req.auth);
 
