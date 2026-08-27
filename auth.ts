@@ -1,16 +1,13 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
+import { authConfig } from "@/auth.config";
 import { prisma } from "@/lib/db";
 import { parseUserPhone } from "@/lib/phone";
 import type { AppRole } from "@/types/next-auth";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  trustHost: true,
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-  },
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -37,22 +34,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id!;
-        token.role = user.role;
-        token.displayName = user.displayName;
-      }
-      return token;
-    },
-    session({ session, token }) {
-      if (session.user) {
-        session.user.id = String(token.id ?? "");
-        session.user.role = (token.role as AppRole) ?? "neighbor";
-        session.user.displayName = String(token.displayName ?? "");
-      }
-      return session;
-    },
-  },
 });
