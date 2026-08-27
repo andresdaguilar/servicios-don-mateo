@@ -20,7 +20,7 @@ export default async function UnirsePage({
         <p className="mt-2 text-sm text-carbon/65">
           Este no es el link de invitación del grupo. Pedilo de nuevo o usá el código.
         </p>
-        <Link href="/registro" className="mt-6 inline-block font-semibold text-brand">
+        <Link href="/registro" className="mt-6 inline-block font-semibold text-brand-ink">
           Ir al registro
         </Link>
       </div>

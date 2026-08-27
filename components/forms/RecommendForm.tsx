@@ -53,7 +53,7 @@ export function RecommendForm({
             {TRUST_TAGS.map((tag) => (
               <label
                 key={tag.id}
-                className="cursor-pointer rounded-full bg-white px-3 py-1.5 text-sm ring-1 ring-black/[0.08] has-[:checked]:bg-brand has-[:checked]:text-white has-[:checked]:ring-0"
+                className="cursor-pointer rounded-full bg-card px-3 py-1.5 text-sm ring-1 ring-line has-[:checked]:bg-brand has-[:checked]:text-white has-[:checked]:ring-0"
               >
                 <input type="checkbox" name="tags" value={tag.id} className="sr-only" />
                 {tag.label}

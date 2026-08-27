@@ -24,7 +24,7 @@ export default async function UrgenciasPage() {
           {contacts.map((c) => (
             <div
               key={c.id}
-              className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]"
+              className="flex items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line"
             >
               <div>
                 <p className="font-semibold text-carbon">{c.name}</p>
@@ -39,7 +39,7 @@ export default async function UrgenciasPage() {
                 </a>
                 <a
                   href={telLink(c.phone)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-mist text-brand"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-mist text-brand-ink"
                 >
                   <Phone className="h-4 w-4" />
                 </a>

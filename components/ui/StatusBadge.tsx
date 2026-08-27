@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 const STYLES: Record<string, string> = {
   pending: "bg-[#FFF4D6] text-[#8A6200]",
   reported: "bg-[#FFE8E7] text-coral",
-  approved: "bg-brand-soft text-brand",
+  approved: "bg-brand-soft text-brand-ink",
   rejected: "bg-[#FFE8E7] text-coral",
   hidden: "bg-mist text-carbon/70",
   outdated: "bg-mist text-carbon/70",

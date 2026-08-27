@@ -73,7 +73,7 @@ export function ReportForm({ providerId }: { providerId: string }) {
         </label>
         {error && <p className="text-sm text-coral">{error}</p>}
         {state?.ok && (
-          <p className="text-sm text-brand">Gracias. Un moderador lo va a revisar.</p>
+          <p className="text-sm text-brand-ink">Gracias. Un moderador lo va a revisar.</p>
         )}
         <button
           type="submit"

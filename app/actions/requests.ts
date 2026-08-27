@@ -5,31 +5,34 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/app/actions/auth";
 import type { ActionState } from "@/app/actions/auth";
+import { runAction } from "@/lib/errors";
 
 export async function createRequestAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const user = await requireUser();
-  const body = String(formData.get("body") ?? "").trim();
-  const categoryId = String(formData.get("categoryId") ?? "") || null;
-  const urgent = formData.get("urgent") === "on";
+  return runAction(async () => {
+    const user = await requireUser();
+    const body = String(formData.get("body") ?? "").trim();
+    const categoryId = String(formData.get("categoryId") ?? "") || null;
+    const urgent = formData.get("urgent") === "on";
 
-  if (body.length < 8) {
-    return { error: "Contá qué estás buscando, en una frase." };
-  }
+    if (body.length < 8) {
+      return { error: "Contá qué estás buscando, en una frase." };
+    }
 
-  const request = await prisma.request.create({
-    data: {
-      body,
-      urgent,
-      categoryId,
-      userId: user.id,
-    },
+    const request = await prisma.request.create({
+      data: {
+        body,
+        urgent,
+        categoryId,
+        userId: user.id,
+      },
+    });
+
+    revalidatePath("/solicitudes");
+    redirect(`/solicitudes/${request.id}`);
   });
-
-  revalidatePath("/solicitudes");
-  redirect(`/solicitudes/${request.id}`);
 }
 
 export async function replyRequestAction(

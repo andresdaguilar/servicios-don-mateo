@@ -16,7 +16,12 @@ const registerSchema = z.object({
   communityCode: z.string().min(1, "Ingresá el código de invitación"),
 });
 
-export type ActionState = { error?: string; ok?: boolean } | null;
+export type ActionState = {
+  error?: string;
+  ok?: boolean;
+  href?: string;
+  hrefLabel?: string;
+} | null;
 
 export async function registerAction(
   _prev: ActionState,

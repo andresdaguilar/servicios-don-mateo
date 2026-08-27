@@ -12,7 +12,7 @@ export function ProviderCard({ provider }: { provider: ProviderCardModel }) {
   return (
     <Link
       href={`/prestadores/${provider.id}`}
-      className="flex items-center gap-3 rounded-2xl bg-white px-3 py-3 shadow-[0_1px_2px_rgba(31,31,31,0.04)] ring-1 ring-black/[0.04]"
+      className="flex items-center gap-3 rounded-2xl bg-card px-3 py-3 shadow-[0_1px_2px_rgba(31,31,31,0.04)] ring-1 ring-line"
     >
       <Avatar name={provider.name} src={photo} />
       <div className="min-w-0 flex-1">
@@ -25,7 +25,7 @@ export function ProviderCard({ provider }: { provider: ProviderCardModel }) {
             {categories.map((category) => (
               <span
                 key={category.id}
-                className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-[12px] font-semibold text-brand"
+                className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-[12px] font-semibold text-brand-ink"
               >
                 <CategoryGlyph icon={category.icon} className="h-3.5 w-3.5" />
                 {category.name}

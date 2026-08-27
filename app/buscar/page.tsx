@@ -38,7 +38,7 @@ export default async function BuscarPage({
 
       <div className="flex flex-col gap-2.5 px-4 py-4">
         {results.length === 0 ? (
-          <div className="rounded-2xl bg-white px-4 py-8 text-center ring-1 ring-black/[0.04]">
+          <div className="rounded-2xl bg-card px-4 py-8 text-center ring-1 ring-line">
             <p className="font-medium text-carbon">No encontramos eso todavía.</p>
             <p className="mt-1 text-sm text-carbon/60">
               Podés cargar un prestador si lo conocés.

@@ -81,12 +81,12 @@ export default async function ProviderPage({
       <div className="flex flex-1 flex-col">
         <div className="flex-1 pb-4">
         {aviso === "telefono" && (
-          <p className="mx-4 mt-3 rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
+          <p className="mx-4 mt-3 rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand-ink">
             Ese teléfono ya estaba cargado. Podés sumar tu recomendación acá.
           </p>
         )}
         {aviso === "publicada" && (
-          <p className="mx-4 mt-3 rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
+          <p className="mx-4 mt-3 rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand-ink">
             Ya se ve en el barrio. Un moderador la revisa si hace falta o si alguien la reporta.
           </p>
         )}
@@ -104,14 +104,14 @@ export default async function ProviderPage({
             ) : null}
           </div>
           {provider.stats.topTag && (
-            <span className="mt-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold text-brand">
+            <span className="mt-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold text-brand-ink">
               {tagLabel(provider.stats.topTag.id)}
             </span>
           )}
           <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
             {isMod && <StatusBadge status={provider.status} />}
             {provider.source === "neighbor" && provider.stats.count > 0 && (
-              <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold text-brand">
+              <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold text-brand-ink">
                 Recomendado por vecinos
               </span>
             )}
@@ -132,7 +132,7 @@ export default async function ProviderPage({
           />
         </div>
 
-        <section className="mx-4 mt-6 rounded-2xl bg-white px-4 py-4 ring-1 ring-black/[0.04]">
+        <section className="mx-4 mt-6 rounded-2xl bg-card px-4 py-4 ring-1 ring-line">
           <h2 className="font-semibold text-carbon">Sobre {firstName}</h2>
           {provider.description ? (
             <p className="mt-2 text-sm leading-relaxed text-carbon/75">{provider.description}</p>
@@ -142,13 +142,13 @@ export default async function ProviderPage({
           <ul className="mt-3 space-y-1.5 text-sm text-carbon/80">
             {provider.license && (
               <li className="flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4 text-brand" />
+                <BadgeCheck className="h-4 w-4 text-brand-ink" />
                 {provider.license}
               </li>
             )}
             {provider.categories.map((c) => (
               <li key={c.categoryId} className="flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4 text-brand" />
+                <BadgeCheck className="h-4 w-4 text-brand-ink" />
                 {c.category.name}
               </li>
             ))}
@@ -166,14 +166,14 @@ export default async function ProviderPage({
             {session?.user && (
               <Link
                 href={`/prestadores/${id}/recomendar`}
-                className="text-xs font-semibold text-brand"
+                className="text-xs font-semibold text-brand-ink"
               >
                 Recomendar
               </Link>
             )}
           </div>
           {reviews.length === 0 ? (
-            <p className="rounded-2xl bg-white px-4 py-5 text-sm text-carbon/60 ring-1 ring-black/[0.04]">
+            <p className="rounded-2xl bg-card px-4 py-5 text-sm text-carbon/60 ring-1 ring-line">
               Todavía no hay comentarios. Si lo usaste, dejá tu experiencia.
             </p>
           ) : (
@@ -181,7 +181,7 @@ export default async function ProviderPage({
               {reviews.map((r) => (
                 <article
                   key={`${r.kind}-${r.id}`}
-                  className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]"
+                  className="rounded-2xl bg-card px-4 py-3 ring-1 ring-line"
                 >
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-semibold text-carbon">{r.name}</p>
@@ -200,7 +200,7 @@ export default async function ProviderPage({
           {session?.user && (
             <Link
               href={`/prestadores/${id}/comentar`}
-              className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-brand"
+              className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-brand-ink"
             >
               <MessageCircle className="h-4 w-4" />
               Dejar un comentario
@@ -209,7 +209,7 @@ export default async function ProviderPage({
         </section>
 
         {isMod && (
-          <div className="mx-4 mt-5 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]">
+          <div className="mx-4 mt-5 rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
             <p className="text-xs font-semibold uppercase tracking-wide text-carbon/45">
               Moderación
             </p>
@@ -268,7 +268,7 @@ export default async function ProviderPage({
           </a>
           <a
             href={telLink(provider.phone)}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-brand bg-white py-3.5 text-[15px] font-semibold text-brand"
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-brand bg-card py-3.5 text-[15px] font-semibold text-brand-ink"
           >
             <Phone className="h-5 w-5" />
             Llamar
@@ -282,8 +282,8 @@ export default async function ProviderPage({
 
 function TrustStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-2xl bg-white px-2 py-3 text-center ring-1 ring-black/[0.04]">
-      <p className="text-lg font-semibold text-brand">{value}</p>
+    <div className="rounded-2xl bg-card px-2 py-3 text-center ring-1 ring-line">
+      <p className="text-lg font-semibold text-brand-ink">{value}</p>
       <p className="mt-0.5 text-[11px] leading-tight text-carbon/65">{label}</p>
       <p className="text-[10px] text-carbon/40">vecinos</p>
     </div>

@@ -73,7 +73,7 @@ export default async function ModeracionPage({
     <AppShell backHref="/">
       <div className="px-4 pt-5">
         <div className="flex items-center gap-2">
-          <Shield className="h-5 w-5 text-brand" />
+          <Shield className="h-5 w-5 text-brand-ink" />
           <h1 className="font-serif text-2xl font-semibold">Panel de confianza</h1>
         </div>
         <div className="mt-4 flex gap-1 overflow-x-auto">
@@ -83,7 +83,7 @@ export default async function ModeracionPage({
               href={`/moderacion?tab=${t.id}`}
               className={cn(
                 "relative shrink-0 rounded-full px-3 py-1.5 text-[13px] font-medium",
-                tab === t.id ? "bg-brand text-white" : "bg-white text-carbon ring-1 ring-black/[0.08]",
+                tab === t.id ? "bg-brand text-white" : "bg-card text-carbon ring-1 ring-line",
               )}
             >
               {t.label}
@@ -111,7 +111,7 @@ export default async function ModeracionPage({
             {openReports.map((r) => (
               <article
                 key={r.id}
-                className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]"
+                className="rounded-2xl bg-card px-4 py-3 ring-1 ring-line"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -173,7 +173,7 @@ export default async function ModeracionPage({
             {pending.map((p) => (
               <article
                 key={p.id}
-                className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]"
+                className="rounded-2xl bg-card px-4 py-3 ring-1 ring-line"
               >
                 <div className="flex items-start justify-between">
                   <div>
@@ -215,7 +215,7 @@ export default async function ModeracionPage({
             {listed.map((p) => (
               <article
                 key={p.id}
-                className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]"
+                className="rounded-2xl bg-card px-4 py-3 ring-1 ring-line"
               >
                 <div className="flex items-start justify-between">
                   <div>
@@ -258,7 +258,7 @@ export default async function ModeracionPage({
             {duplicates.map((p) => (
               <article
                 key={p.id}
-                className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]"
+                className="rounded-2xl bg-card px-4 py-3 ring-1 ring-line"
               >
                 <div className="flex justify-between">
                   <p className="font-semibold">{p.name}</p>
@@ -277,7 +277,7 @@ export default async function ModeracionPage({
             {events.map((e) => (
               <div
                 key={e.id}
-                className="rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-black/[0.04]"
+                className="rounded-2xl bg-card px-4 py-3 text-sm ring-1 ring-line"
               >
                 <p className="font-medium">{e.action}</p>
                 <p className="text-xs text-carbon/50">
@@ -295,7 +295,7 @@ export default async function ModeracionPage({
               <form
                 key={c.id}
                 action={updateCategoryAction.bind(null, c.id)}
-                className="flex items-center gap-2 rounded-2xl bg-white px-3 py-2 ring-1 ring-black/[0.04]"
+                className="flex items-center gap-2 rounded-2xl bg-card px-3 py-2 ring-1 ring-line"
               >
                 <input
                   name="name"
@@ -311,7 +311,7 @@ export default async function ModeracionPage({
                   />
                   Urgencia
                 </label>
-                <button className="text-xs font-semibold text-brand">Guardar</button>
+                <button className="text-xs font-semibold text-brand-ink">Guardar</button>
               </form>
             ))}
           </div>
@@ -323,7 +323,7 @@ export default async function ModeracionPage({
 
 function Empty({ text }: { text: string }) {
   return (
-    <p className="rounded-2xl bg-white px-4 py-6 text-center text-sm text-carbon/55 ring-1 ring-black/[0.04]">
+    <p className="rounded-2xl bg-card px-4 py-6 text-center text-sm text-carbon/55 ring-1 ring-line">
       {text}
     </p>
   );

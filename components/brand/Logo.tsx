@@ -17,7 +17,7 @@ export function Wordmark({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
       <Logo size={compact ? 36 : 42} />
-      <p className="min-w-0 font-serif text-[20px] font-semibold leading-tight tracking-tight text-brand">
+      <p className="min-w-0 font-serif text-[20px] font-semibold leading-tight tracking-tight text-brand-ink">
         Servicios Don Mateo
       </p>
     </div>

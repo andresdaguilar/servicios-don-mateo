@@ -26,7 +26,7 @@ export function Avatar({
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full bg-brand-soft font-semibold text-brand",
+        "flex items-center justify-center rounded-full bg-brand-soft font-semibold text-brand-ink",
         dim,
       )}
     >

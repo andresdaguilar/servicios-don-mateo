@@ -34,7 +34,7 @@ export default async function SolicitudesPage() {
       </p>
       <div className="mt-4 flex flex-col gap-2.5 px-4 pb-8">
         {requests.length === 0 && (
-          <p className="rounded-2xl bg-white px-4 py-6 text-center text-sm text-carbon/60 ring-1 ring-black/[0.04]">
+          <p className="rounded-2xl bg-card px-4 py-6 text-center text-sm text-carbon/60 ring-1 ring-line">
             Nadie pidió nada todavía.
           </p>
         )}
@@ -42,7 +42,7 @@ export default async function SolicitudesPage() {
           <Link
             key={r.id}
             href={`/solicitudes/${r.id}`}
-            className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]"
+            className="rounded-2xl bg-card px-4 py-3 ring-1 ring-line"
           >
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-carbon">{r.user.displayName}</p>

@@ -19,14 +19,14 @@ export function RatingBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full bg-[#FFF4D6] px-2 py-0.5 text-xs font-semibold text-carbon",
+        "inline-flex items-center gap-1 rounded-full bg-[#FFF4D6] px-2 py-0.5 text-xs font-semibold text-[#1F1F1F]",
         className,
       )}
     >
       <Star className="h-3.5 w-3.5 fill-gold text-gold" />
       {formatRating(value)}
       {typeof count === "number" && (
-        <span className="font-medium text-carbon/60">({count})</span>
+        <span className="font-medium text-[#1F1F1F]/60">({count})</span>
       )}
     </span>
   );

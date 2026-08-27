@@ -15,7 +15,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="z-30 shrink-0 border-t border-black/[0.06] bg-white pb-[env(safe-area-inset-bottom)]">
+    <nav className="z-30 shrink-0 border-t border-line bg-card pb-[env(safe-area-inset-bottom)]">
       <ul className="grid grid-cols-3 px-1 pt-1">
         {ITEMS.map((item) => {
           const active =
@@ -44,7 +44,7 @@ export function BottomNav() {
                 href={item.href}
                 className={cn(
                   "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium",
-                  active ? "text-brand" : "text-carbon/45",
+                  active ? "text-brand-ink" : "text-carbon/45",
                 )}
               >
                 <Icon className="h-5 w-5" strokeWidth={1.75} />

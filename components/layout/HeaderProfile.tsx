@@ -15,7 +15,7 @@ export function HeaderProfile() {
       aria-label="Perfil"
       className={cn(
         "flex h-10 w-10 items-center justify-center rounded-full bg-mist",
-        active ? "text-brand" : "text-carbon/70",
+        active ? "text-brand-ink" : "text-carbon/70",
       )}
     >
       <UserRound className="h-5 w-5" strokeWidth={1.75} />

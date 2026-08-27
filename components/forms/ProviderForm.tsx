@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useActionState, useState } from "react";
+import Link from "next/link";
 import { createProviderAction } from "@/app/actions/providers";
 import { AppShell } from "@/components/layout/AppShell";
 import { cn } from "@/lib/utils";
@@ -83,7 +84,7 @@ export function ProviderForm({
             {categories.map((c) => (
               <label
                 key={c.id}
-                className="rounded-full bg-white px-3 py-1.5 text-sm ring-1 ring-black/[0.08] has-[:checked]:bg-brand has-[:checked]:text-white has-[:checked]:ring-0"
+                className="rounded-full bg-card px-3 py-1.5 text-sm ring-1 ring-line has-[:checked]:bg-brand has-[:checked]:text-white has-[:checked]:ring-0"
               >
                 <input type="checkbox" name="categoryIds" value={c.id} className="sr-only" />
                 {c.name}
@@ -113,7 +114,7 @@ export function ProviderForm({
         <label className="text-sm font-medium">
           Fotos <OptionalMark />
           <span className="mt-1 flex items-center gap-2">
-            <span className="rounded-2xl bg-mist px-3 py-3 text-sm font-normal text-brand">
+            <span className="rounded-2xl bg-mist px-3 py-3 text-sm font-normal text-brand-ink">
               Elegir fotos
             </span>
             <span className="text-xs font-normal text-carbon/50">{photoLabel}</span>
@@ -137,13 +138,27 @@ export function ProviderForm({
           </span>
         </label>
 
-        <div className="mt-3 rounded-2xl bg-brand-soft px-3.5 py-3">
-          <p className="text-sm text-brand">
+        <div
+          className={
+            error
+              ? "mt-3 rounded-2xl bg-coral/15 px-3.5 py-3"
+              : "mt-3 rounded-2xl bg-brand-soft px-3.5 py-3"
+          }
+        >
+          <p className={error ? "text-sm text-carbon/80" : "text-sm text-brand-ink"}>
             Para publicar hace falta <span className="font-semibold">nombre</span>,{" "}
             <span className="font-semibold">teléfono</span> y{" "}
             <span className="font-semibold">al menos un rubro</span>. El resto es opcional.
           </p>
-          {error && <p className="mt-2 text-sm font-medium text-coral">{error}</p>}
+          {error && <p className="mt-2 text-sm font-semibold text-coral">{error}</p>}
+          {state?.href && (
+            <Link
+              href={state.href}
+              className="mt-2 inline-flex text-sm font-semibold text-brand-ink"
+            >
+              {state.hrefLabel ?? "Ver ficha"}
+            </Link>
+          )}
         </div>
         <button
           type="submit"

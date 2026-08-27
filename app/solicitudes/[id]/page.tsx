@@ -47,7 +47,7 @@ export default async function SolicitudDetailPage({
     <AppShell backHref="/">
       <div className="px-4 pb-8 pt-4">
         <h1 className="mb-3 font-serif text-2xl font-semibold">Pedido</h1>
-        <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-black/[0.04]">
+        <div className="rounded-2xl bg-card px-4 py-4 ring-1 ring-line">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold">{request.user.displayName}</p>
             <p className="text-[11px] text-carbon/45">{timeAgo(request.createdAt)}</p>
@@ -73,13 +73,13 @@ export default async function SolicitudDetailPage({
             <p className="text-sm text-carbon/55">Nadie respondió todavía.</p>
           )}
           {request.replies.map((r) => (
-            <article key={r.id} className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]">
+            <article key={r.id} className="rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
               <p className="text-sm font-semibold">{r.user.displayName}</p>
               <p className="mt-1 text-sm text-carbon/75">{r.body}</p>
               {r.provider && (
                 <Link
                   href={`/prestadores/${r.provider.id}`}
-                  className="mt-2 inline-block text-sm font-semibold text-brand"
+                  className="mt-2 inline-block text-sm font-semibold text-brand-ink"
                 >
                   Ver ficha de {r.provider.name}
                 </Link>
@@ -91,7 +91,7 @@ export default async function SolicitudDetailPage({
         {session?.user && request.status === "open" ? (
           <ReplyForm requestId={request.id} providers={providers} />
         ) : !session?.user ? (
-          <Link href="/login" className="mt-4 block text-sm font-semibold text-brand">
+          <Link href="/login" className="mt-4 block text-sm font-semibold text-brand-ink">
             Entrá para responder
           </Link>
         ) : null}

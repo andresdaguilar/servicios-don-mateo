@@ -21,7 +21,7 @@ export function CommentForm({ providerId }: { providerId: string }) {
           className="rounded-2xl bg-mist px-3 py-3 text-sm outline-none"
         />
         {state?.error && <p className="text-sm text-coral">{state.error}</p>}
-        {state?.ok && <p className="text-sm text-brand">Comentario publicado.</p>}
+        {state?.ok && <p className="text-sm text-brand-ink">Comentario publicado.</p>}
         <button
           type="submit"
           disabled={pending}

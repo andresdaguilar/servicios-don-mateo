@@ -35,12 +35,12 @@ export function LoginForm({ from }: { from: string }) {
         </form>
         <p className="mt-4 text-center text-sm text-carbon/60">
           ¿No tenés cuenta?{" "}
-          <Link href="/registro" className="font-semibold text-brand">
+          <Link href="/registro" className="font-semibold text-brand-ink">
             Registrate con el código del grupo
           </Link>
         </p>
         <p className="mt-3 text-center text-sm">
-          <Link href="/faq" className="font-medium text-brand">
+          <Link href="/faq" className="font-medium text-brand-ink">
             Cómo funciona la app
           </Link>
         </p>

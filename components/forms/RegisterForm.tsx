@@ -56,7 +56,7 @@ export function RegisterForm({ inviteCode }: { inviteCode?: string }) {
         </form>
         <p className="mt-4 text-center text-sm text-carbon/60">
           ¿Ya tenés cuenta?{" "}
-          <Link href="/login" className="font-semibold text-brand">
+          <Link href="/login" className="font-semibold text-brand-ink">
             Entrar
           </Link>
         </p>

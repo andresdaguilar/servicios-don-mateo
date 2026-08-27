@@ -18,7 +18,7 @@ export default async function CuentaPage() {
     <AppShell>
       <div className="px-4 pt-5 pb-8">
         <h1 className="font-serif text-2xl font-semibold">Perfil</h1>
-        <div className="mt-4 rounded-2xl bg-white px-4 py-4 ring-1 ring-black/[0.04]">
+        <div className="mt-4 rounded-2xl bg-card px-4 py-4 ring-1 ring-line">
           <p className="font-semibold">{session.user.name}</p>
           <p className="text-sm text-carbon/60">{session.user.displayName}</p>
           <p className="mt-1 text-xs uppercase tracking-wide text-carbon/40">
@@ -30,7 +30,7 @@ export default async function CuentaPage() {
           </p>
         </div>
 
-        <div className="mt-4 flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-black/[0.04]">
+        <div className="mt-4 flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-line">
           <Row href="/favoritos" label="Favoritos" />
           <Row href="/prestadores/nuevo?origen=vecino" label="Recomendar un prestador" />
           <Row href="/prestadores/nuevo" label="Publicar mi servicio" />
@@ -55,7 +55,7 @@ function Row({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="border-b border-black/[0.04] px-4 py-3.5 text-sm last:border-0"
+      className="border-b border-line px-4 py-3.5 text-sm last:border-0"
     >
       {label}
     </Link>

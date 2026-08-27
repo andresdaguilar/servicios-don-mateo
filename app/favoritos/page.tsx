@@ -15,9 +15,9 @@ export default async function FavoritosPage() {
       <h1 className="px-4 pt-5 font-serif text-2xl font-semibold">Favoritos</h1>
       <div className="mt-4 flex flex-col gap-2.5 px-4 pb-8">
         {favorites.length === 0 ? (
-          <div className="rounded-2xl bg-white px-4 py-8 text-center ring-1 ring-black/[0.04]">
+          <div className="rounded-2xl bg-card px-4 py-8 text-center ring-1 ring-line">
             <p className="text-sm text-carbon/65">Todavía no guardaste contactos.</p>
-            <Link href="/buscar" className="mt-3 inline-block text-sm font-semibold text-brand">
+            <Link href="/buscar" className="mt-3 inline-block text-sm font-semibold text-brand-ink">
               Buscar servicios
             </Link>
           </div>

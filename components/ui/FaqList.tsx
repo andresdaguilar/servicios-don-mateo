@@ -7,11 +7,11 @@ export function FaqList() {
       {FAQ_SECTIONS.map((section) => (
         <section key={section.title}>
           <h2 className="mb-2 px-1 text-sm font-semibold text-carbon">{section.title}</h2>
-          <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-black/[0.04]">
+          <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-line">
             {section.items.map((item) => (
               <details
                 key={item.q}
-                className="group border-b border-black/[0.04] last:border-0"
+                className="group border-b border-line last:border-0"
               >
                 <summary className="flex list-none items-center justify-between gap-3 px-4 py-3.5 text-[15px] font-medium text-carbon marker:content-none [&::-webkit-details-marker]:hidden">
                   {item.q}

@@ -10,6 +10,7 @@ import { normalizePhone } from "@/lib/phone";
 import { findProviderByPhone, findSimilarProviders } from "@/lib/queries";
 import { requireUser } from "@/app/actions/auth";
 import type { ActionState } from "@/app/actions/auth";
+import { runAction } from "@/lib/errors";
 
 const providerSchema = z.object({
   name: z.string().min(2, "Ingresá el nombre").max(80),
@@ -41,70 +42,86 @@ export async function createProviderAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const user = await requireUser();
-  const categoryIds = formData.getAll("categoryIds").map(String).filter(Boolean);
-  const parsed = providerSchema.safeParse({
-    name: formData.get("name"),
-    description: String(formData.get("description") ?? "") || undefined,
-    phone: formData.get("phone"),
-    zone: String(formData.get("zone") ?? "") || undefined,
-    license: String(formData.get("license") ?? "") || undefined,
-    categoryIds,
-    source: formData.get("source") === "self" ? "self" : "neighbor",
-  });
-
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
-  }
-
-  const phone = normalizePhone(parsed.data.phone);
-  if (phone.length < 10) return { error: "El teléfono no parece válido." };
-
-  const existing = await findProviderByPhone(phone);
-  if (existing) {
-    redirect(`/prestadores/${existing.id}?aviso=telefono`);
-  }
-
-  const similar = await findSimilarProviders(parsed.data.name);
-  const selfPublish = parsed.data.source === "self";
-  const status = ProviderStatus.pending;
-
-  const photos = await uploadPhotos(formData);
-
-  const provider = await prisma.provider.create({
-    data: {
-      name: parsed.data.name.trim(),
-      description: parsed.data.description?.trim() ?? "",
-      phone,
-      whatsapp: phone,
-      zone: parsed.data.zone?.trim() ?? "",
-      license: parsed.data.license?.trim() || null,
-      status,
-      source: selfPublish ? ProviderSource.self : ProviderSource.neighbor,
-      possibleDuplicate: similar.length > 0,
-      createdById: user.id,
-      ownerId: selfPublish ? user.id : null,
-      lastRecommendedAt: selfPublish ? null : new Date(),
-      categories: {
-        create: parsed.data.categoryIds.map((categoryId) => ({ categoryId })),
-      },
-      photos: photos.length
-        ? { create: photos.map((url) => ({ url })) }
-        : undefined,
-    },
-  });
-
-  if (selfPublish) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { role: user.role === "moderator" ? "moderator" : "provider" },
+  return runAction(async () => {
+    const user = await requireUser();
+    const categoryIds = formData.getAll("categoryIds").map(String).filter(Boolean);
+    const parsed = providerSchema.safeParse({
+      name: formData.get("name"),
+      description: String(formData.get("description") ?? "") || undefined,
+      phone: formData.get("phone"),
+      zone: String(formData.get("zone") ?? "") || undefined,
+      license: String(formData.get("license") ?? "") || undefined,
+      categoryIds,
+      source: formData.get("source") === "self" ? "self" : "neighbor",
     });
-  }
 
-  revalidatePath("/");
-  revalidatePath("/buscar");
-  revalidatePath("/moderacion");
-  redirect(`/prestadores/${provider.id}?aviso=publicada`);
+    if (!parsed.success) {
+      return { error: parsed.error.issues[0]?.message ?? "Revisá los datos e intentá de nuevo." };
+    }
+
+    const phone = normalizePhone(parsed.data.phone);
+    if (phone.length < 10) return { error: "El teléfono no parece válido." };
+
+    const existing = await findProviderByPhone(phone);
+    if (existing) {
+      redirect(`/prestadores/${existing.id}?aviso=telefono`);
+    }
+
+    const similar = await findSimilarProviders(parsed.data.name);
+    const selfPublish = parsed.data.source === "self";
+    const status = ProviderStatus.pending;
+
+    if (selfPublish) {
+      const owned = await prisma.provider.findUnique({
+        where: { ownerId: user.id },
+        select: { id: true, name: true },
+      });
+      if (owned) {
+        return {
+          error: `Ya publicaste un servicio (${owned.name}). Si querés cambiar algo, entrá a tu ficha.`,
+          href: `/prestadores/${owned.id}`,
+          hrefLabel: "Ver mi ficha",
+        };
+      }
+    }
+
+    const photos = await uploadPhotos(formData);
+
+    const provider = await prisma.provider.create({
+      data: {
+        name: parsed.data.name.trim(),
+        description: parsed.data.description?.trim() ?? "",
+        phone,
+        whatsapp: phone,
+        zone: parsed.data.zone?.trim() ?? "",
+        license: parsed.data.license?.trim() || null,
+        status,
+        source: selfPublish ? ProviderSource.self : ProviderSource.neighbor,
+        possibleDuplicate: similar.length > 0,
+        createdById: user.id,
+        ownerId: selfPublish ? user.id : null,
+        lastRecommendedAt: selfPublish ? null : new Date(),
+        categories: {
+          create: parsed.data.categoryIds.map((categoryId) => ({ categoryId })),
+        },
+        photos: photos.length
+          ? { create: photos.map((url) => ({ url })) }
+          : undefined,
+      },
+    });
+
+    if (selfPublish) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { role: user.role === "moderator" ? "moderator" : "provider" },
+      });
+    }
+
+    revalidatePath("/");
+    revalidatePath("/buscar");
+    revalidatePath("/moderacion");
+    redirect(`/prestadores/${provider.id}?aviso=publicada`);
+  });
 }
 
 export async function updateProviderAction(providerId: string, formData: FormData) {

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Inter, Newsreader } from "next/font/google";
 import { auth } from "@/auth";
 import { AuthSession } from "@/components/providers/AuthSession";
@@ -20,6 +21,8 @@ export const metadata: Metadata = {
   description: "Contactos recomendados por vecinos",
 };
 
+const themeScript = `(function(){try{var t=localStorage.getItem("theme");var d=t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.classList.add("dark")}catch(e){}})();`;
+
 export const dynamic = "force-dynamic";
 
 export const viewport: Viewport = {
@@ -35,9 +38,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
+      suppressHydrationWarning
       className={`${inter.variable} ${newsreader.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-paper font-sans text-carbon">
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeScript}
+        </Script>
         <AuthSession session={session}>{children}</AuthSession>
       </body>
     </html>
