@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Heart, House, ShieldCheck, Users } from "lucide-react";
+import { Check } from "lucide-react";
 import { auth } from "@/auth";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { ProviderCard } from "@/components/ui/ProviderCard";
@@ -70,21 +70,25 @@ export default async function HomePage() {
       </section>
 
       <section className="px-4 py-8">
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { icon: ShieldCheck, label: "Vecinos reales" },
-            { icon: Heart, label: "Recomendaciones de confianza" },
-            { icon: Users, label: "Apoyamos lo local" },
-            { icon: House, label: "Comunidad que ayuda" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="flex items-center gap-2 rounded-xl bg-card px-3 py-2.5 text-[12px] font-medium text-carbon/80 ring-1 ring-line"
-            >
-              <item.icon className="h-4 w-4 text-brand-ink" strokeWidth={1.75} />
-              {item.label}
-            </div>
-          ))}
+        <div className="rounded-2xl bg-card px-4 py-4 ring-1 ring-line">
+          <ul className="flex flex-col gap-2.5">
+            {[
+              "Vecinos reales",
+              "Recomendaciones de confianza",
+              "Apoyamos lo local",
+              "Comunidad que ayuda",
+            ].map((label) => (
+              <li key={label} className="flex items-center gap-2.5 text-sm text-carbon/80">
+                <span
+                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-ink"
+                  aria-hidden
+                >
+                  <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                </span>
+                {label}
+              </li>
+            ))}
+          </ul>
         </div>
         <Link
           href="/faq"

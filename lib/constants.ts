@@ -49,5 +49,7 @@ export const CATEGORY_SEED = [
   { slug: "administracion", name: "Administración", icon: "building-2", isUrgency: true, sortOrder: 14 },
   { slug: "transporte", name: "Transporte", icon: "car", isUrgency: false, sortOrder: 15 },
   { slug: "mecanico", name: "Mecánico/Electromecánico", icon: "cog", isUrgency: false, sortOrder: 16 },
+  { slug: "herreria", name: "Herrería", icon: "anvil", isUrgency: false, sortOrder: 17 },
+  { slug: "pintura", name: "Pintura", icon: "paintbrush", isUrgency: false, sortOrder: 18 },
   { slug: "otros", name: "Otros", icon: "ellipsis", isUrgency: false, sortOrder: 99 },
 ] as const;

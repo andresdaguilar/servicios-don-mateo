@@ -1,4 +1,5 @@
 import {
+  Anvil,
   Bike,
   Building2,
   Car,
@@ -11,6 +12,7 @@ import {
   Hammer,
   HeartPulse,
   KeyRound,
+  Paintbrush,
   PawPrint,
   Shield,
   Sparkles,
@@ -27,6 +29,8 @@ const ICONS: Record<string, LucideIcon> = {
   bike: Bike,
   car: Car,
   cog: Cog,
+  anvil: Anvil,
+  paintbrush: Paintbrush,
   "flower-2": Flower2,
   hammer: Hammer,
   sparkles: Sparkles,

@@ -11,25 +11,21 @@ type Cat = { id: string; name: string };
 export function ProviderForm({
   categories,
   defaultOwn = false,
-  alreadyOwned,
 }: {
   categories: Cat[];
   defaultOwn?: boolean;
-  alreadyOwned?: { id: string; name: string } | null;
 }) {
   const [state, action] = useActionState(createProviderAction, null);
-  const [isOwn, setIsOwn] = useState(defaultOwn && !alreadyOwned);
+  const [isOwn, setIsOwn] = useState(defaultOwn);
+  const [rubros, setRubros] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
   const [missing, setMissing] = useState<Set<string>>(new Set());
   const [photoLabel, setPhotoLabel] = useState("Ninguna seleccionada");
-  const own = isOwn && !alreadyOwned;
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
-    const form = e.currentTarget;
-    const data = new FormData(form);
+    const data = new FormData(e.currentTarget);
     const name = String(data.get("name") ?? "").trim();
     const phone = String(data.get("phone") ?? "").trim();
-    const rubros = data.getAll("categoryIds").filter(Boolean);
     const next = new Set<string>();
     if (name.length < 2) next.add("name");
     if (phone.length < 8) next.add("phone");
@@ -55,50 +51,43 @@ export function ProviderForm({
         onSubmit={onSubmit}
         className="flex flex-1 flex-col gap-3 px-4 pb-8 pt-4"
       >
-        <input type="hidden" name="source" value={own ? "self" : "neighbor"} />
+        <input type="hidden" name="source" value={isOwn ? "self" : "neighbor"} />
+        {rubros.map((id) => (
+          <input key={id} type="hidden" name="categoryIds" value={id} />
+        ))}
         <h1 className="font-serif text-2xl font-semibold">Publicar un servicio</h1>
         <p className="text-sm text-carbon/65">
-          {own
+          {isOwn
             ? "Esta ficha queda a tu nombre. Se ve en el barrio ya y un moderador la revisa si hace falta."
             : "Cargá a alguien que conocés y recomendarías. Si el teléfono ya está, te llevamos a esa ficha."}
         </p>
-        {alreadyOwned ? (
-          <p className="rounded-2xl bg-mist px-3.5 py-3 text-sm text-carbon/70">
-            Ya publicaste tu oficio ({alreadyOwned.name}). Este formulario es para recomendar a
-            otra persona.{" "}
-            <Link href={`/prestadores/${alreadyOwned.id}`} className="font-semibold text-brand-ink">
-              Ver mi ficha
-            </Link>
-          </p>
-        ) : (
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-card px-3.5 py-3 ring-1 ring-line has-[:checked]:bg-brand-soft has-[:checked]:ring-brand/30">
-            <input
-              type="checkbox"
-              checked={isOwn}
-              onChange={(e) => setIsOwn(e.target.checked)}
-              className="mt-1 h-4 w-4 accent-brand"
-            />
-            <span>
-              <span className="block text-sm font-semibold text-carbon">
-                Este es mi propio servicio
-              </span>
-              <span className="mt-0.5 block text-xs leading-relaxed text-carbon/60">
-                Marcá esto solo si el oficio es tuyo. Un vecino puede cargar varios contactos; de
-                tu cuenta sale una sola ficha propia.
-              </span>
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-card px-3.5 py-3 ring-1 ring-line has-[:checked]:bg-brand-soft has-[:checked]:ring-brand/30">
+          <input
+            type="checkbox"
+            checked={isOwn}
+            onChange={(e) => setIsOwn(e.target.checked)}
+            className="mt-1 h-4 w-4 accent-brand"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-carbon">
+              Este es mi propio servicio
             </span>
-          </label>
-        )}
+            <span className="mt-0.5 block text-xs leading-relaxed text-carbon/60">
+              Dejalo destildado si estás recomendando a otra persona. Marcá esto solo si el oficio
+              es tuyo.
+            </span>
+          </span>
+        </label>
         <Field
           name="name"
-          label={own ? "Tu nombre o cómo te conocen" : "Nombre del prestador"}
-          placeholder={own ? "Ana, gasista" : "Daniel Gasista"}
+          label={isOwn ? "Tu nombre o cómo te conocen" : "Nombre del prestador"}
+          placeholder={isOwn ? "Ana, gasista" : "Daniel Gasista"}
           required
           invalid={missing.has("name")}
         />
         <Field
           name="phone"
-          label={own ? "Tu WhatsApp" : "Teléfono / WhatsApp"}
+          label={isOwn ? "Tu WhatsApp" : "Teléfono / WhatsApp"}
           placeholder="11 5555-1234"
           required
           invalid={missing.has("phone")}
@@ -108,15 +97,29 @@ export function ProviderForm({
             Rubro <RequiredMark />
           </legend>
           <div className="mt-2 flex flex-wrap gap-2">
-            {categories.map((c) => (
-              <label
-                key={c.id}
-                className="rounded-full bg-card px-3 py-1.5 text-sm ring-1 ring-line has-[:checked]:bg-brand has-[:checked]:text-white has-[:checked]:ring-0"
-              >
-                <input type="checkbox" name="categoryIds" value={c.id} className="sr-only" />
-                {c.name}
-              </label>
-            ))}
+            {categories.map((c) => {
+              const on = rubros.includes(c.id);
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() =>
+                    setRubros((prev) =>
+                      prev.includes(c.id) ? prev.filter((id) => id !== c.id) : [...prev, c.id],
+                    )
+                  }
+                  aria-pressed={on}
+                  className={cn(
+                    "rounded-full px-3 py-1.5 text-sm ring-1",
+                    on
+                      ? "bg-brand text-white ring-brand"
+                      : "bg-card text-carbon ring-line",
+                  )}
+                >
+                  {c.name}
+                </button>
+              );
+            })}
           </div>
           {missing.has("rubro") && (
             <p className="mt-1.5 text-xs text-coral">Elegí al menos un rubro.</p>
@@ -191,7 +194,7 @@ export function ProviderForm({
           pendingLabel="Publicando…"
           className="rounded-2xl bg-brand py-3.5 font-semibold text-white"
         >
-          {own ? "Publicar mi oficio" : "Publicar"}
+          {isOwn ? "Publicar mi oficio" : "Publicar"}
         </SubmitButton>
       </form>
   );

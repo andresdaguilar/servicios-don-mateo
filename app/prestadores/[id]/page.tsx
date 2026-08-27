@@ -115,11 +115,6 @@ export default async function ProviderPage({
                 Recomendado por vecinos
               </span>
             )}
-            {provider.source === "self" && (
-              <span className="rounded-full bg-mist px-2.5 py-1 text-[11px] font-semibold text-carbon/70">
-                Publicado por el prestador
-              </span>
-            )}
           </div>
         </div>
 
