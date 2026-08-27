@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Inter, Newsreader } from "next/font/google";
 import { auth } from "@/auth";
+import { AppShell } from "@/components/layout/AppShell";
 import { AuthSession } from "@/components/providers/AuthSession";
 import "./globals.css";
 
@@ -45,7 +46,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <Script id="theme-init" strategy="beforeInteractive">
           {themeScript}
         </Script>
-        <AuthSession session={session}>{children}</AuthSession>
+        <AuthSession session={session}>
+          <AppShell>{children}</AppShell>
+        </AuthSession>
       </body>
     </html>
   );

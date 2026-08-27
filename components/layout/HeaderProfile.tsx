@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserRound } from "lucide-react";
+import { IconPending } from "@/components/layout/HeaderStart";
 import { cn } from "@/lib/utils";
 
 export function HeaderProfile() {
@@ -12,13 +13,15 @@ export function HeaderProfile() {
   return (
     <Link
       href="/cuenta"
+      prefetch
       aria-label="Perfil"
       className={cn(
-        "flex h-10 w-10 items-center justify-center rounded-full bg-mist",
+        "relative flex h-10 w-10 items-center justify-center rounded-full bg-mist",
         active ? "text-brand-ink" : "text-carbon/70",
       )}
     >
       <UserRound className="h-5 w-5" strokeWidth={1.75} />
+      <IconPending />
     </Link>
   );
 }

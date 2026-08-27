@@ -2,18 +2,17 @@
 
 import { useActionState } from "react";
 import { createRequestAction } from "@/app/actions/requests";
-import { AppShell } from "@/components/layout/AppShell";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function RequestForm({
   categories,
 }: {
   categories: { id: string; name: string }[];
 }) {
-  const [state, action, pending] = useActionState(createRequestAction, null);
+  const [state, action] = useActionState(createRequestAction, null);
 
   return (
-    <AppShell backHref="/">
-      <form action={action} className="flex flex-1 flex-col gap-3 px-4 pb-8 pt-4">
+          <form action={action} className="flex flex-1 flex-col gap-3 px-4 pb-8 pt-4">
         <h1 className="font-serif text-2xl font-semibold">Pedir recomendación</h1>
         <textarea
           name="body"
@@ -39,14 +38,12 @@ export function RequestForm({
           Es urgente
         </label>
         {state?.error && <p className="text-sm text-coral">{state.error}</p>}
-        <button
-          type="submit"
-          disabled={pending}
+        <SubmitButton
+          pendingLabel="Publicando…"
           className="mt-auto rounded-2xl bg-brand py-3.5 font-semibold text-white"
         >
           Publicar pedido
-        </button>
+        </SubmitButton>
       </form>
-    </AppShell>
   );
 }

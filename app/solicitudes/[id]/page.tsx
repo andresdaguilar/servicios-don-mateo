@@ -2,11 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { AppShell } from "@/components/layout/AppShell";
 import { ReplyForm } from "@/components/forms/ReplyForm";
 import { closeRequestAction } from "@/app/actions/requests";
 import { timeAgo } from "@/lib/utils";
 import { PUBLIC_PROVIDER_STATUSES } from "@/lib/queries";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export default async function SolicitudDetailPage({
   params,
@@ -44,8 +44,7 @@ export default async function SolicitudDetailPage({
     request.status === "open";
 
   return (
-    <AppShell backHref="/">
-      <div className="px-4 pb-8 pt-4">
+          <div className="px-4 pb-8 pt-4">
         <h1 className="mb-3 font-serif text-2xl font-semibold">Pedido</h1>
         <div className="rounded-2xl bg-card px-4 py-4 ring-1 ring-line">
           <div className="flex items-center justify-between">
@@ -61,9 +60,12 @@ export default async function SolicitudDetailPage({
 
         {canClose && (
           <form action={closeRequestAction.bind(null, request.id)} className="mt-3">
-            <button type="submit" className="text-xs font-semibold text-carbon/50">
+            <SubmitButton
+              pendingLabel="Guardando…"
+              className="text-xs font-semibold text-carbon/50"
+            >
               Marcar como resuelto
-            </button>
+            </SubmitButton>
           </form>
         )}
 
@@ -96,6 +98,5 @@ export default async function SolicitudDetailPage({
           </Link>
         ) : null}
       </div>
-    </AppShell>
   );
 }

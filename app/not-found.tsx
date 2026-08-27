@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { AppShell } from "@/components/layout/AppShell";
 
 export default function NotFound() {
   return (
-    <AppShell backHref="/">
-      <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
+          <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
         <h1 className="font-serif text-2xl font-semibold">No está esa ficha</h1>
         <p className="mt-2 text-sm text-carbon/65">
           Puede estar en revisión o el enlace no es válido.
@@ -13,6 +11,5 @@ export default function NotFound() {
           Volver al inicio
         </Link>
       </div>
-    </AppShell>
   );
 }

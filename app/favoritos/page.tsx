@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AppShell } from "@/components/layout/AppShell";
 import { ProviderCard } from "@/components/ui/ProviderCard";
 import { getFavorites } from "@/lib/queries";
 
@@ -11,7 +10,7 @@ export default async function FavoritosPage() {
   const favorites = await getFavorites(session.user.id);
 
   return (
-    <AppShell backHref="/">
+    <>
       <h1 className="px-4 pt-5 font-serif text-2xl font-semibold">Favoritos</h1>
       <div className="mt-4 flex flex-col gap-2.5 px-4 pb-8">
         {favorites.length === 0 ? (
@@ -25,6 +24,6 @@ export default async function FavoritosPage() {
           favorites.map((p) => <ProviderCard key={p.id} provider={p} />)
         )}
       </div>
-    </AppShell>
+    </>
   );
 }

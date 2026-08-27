@@ -55,11 +55,11 @@ export const FAQ_SECTIONS = [
     items: [
       {
         q: "¿Puedo cargar a alguien que conozco?",
-        a: "Sí. Si un vecino te hizo un buen trabajo, podés cargar su ficha (nombre, teléfono y rubro). Si ese teléfono ya está, te llevamos a la ficha existente para que sumes tu recomendación.",
+        a: "Sí, es lo más habitual. En Publicar cargás nombre, teléfono y rubro de un prestador que recomendarías. Si ese teléfono ya está, te llevamos a la ficha existente para que sumes tu recomendación.",
       },
       {
         q: "¿Puedo publicar mi propio servicio?",
-        a: "Sí. La ficha se ve en el barrio de inmediato y queda pendiente de revisión. Un moderador la mira si hace falta o si alguien la reporta. Si se da de baja, deja de mostrarse.",
+        a: "Sí. En el mismo formulario marcá “Este es mi propio servicio”. La ficha queda asociada a tu cuenta (una por persona), se ve en el barrio de inmediato y queda pendiente de revisión.",
       },
       {
         q: "¿Cómo dejo una recomendación?",

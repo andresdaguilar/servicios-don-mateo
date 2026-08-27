@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { AppShell } from "@/components/layout/AppShell";
 import { prisma } from "@/lib/db";
 import { timeAgo } from "@/lib/utils";
 
@@ -17,12 +16,13 @@ export default async function SolicitudesPage() {
   });
 
   return (
-    <AppShell backHref="/">
+    <>
       <div className="flex items-center justify-between px-4 pt-5">
         <h1 className="font-serif text-2xl font-semibold">Mensajes</h1>
         {session?.user && (
           <Link
             href="/solicitudes/nueva"
+            prefetch
             className="rounded-full bg-brand px-3 py-1.5 text-sm font-semibold text-white"
           >
             Pedir
@@ -42,6 +42,7 @@ export default async function SolicitudesPage() {
           <Link
             key={r.id}
             href={`/solicitudes/${r.id}`}
+            prefetch
             className="rounded-2xl bg-card px-4 py-3 ring-1 ring-line"
           >
             <div className="flex items-center justify-between gap-2">
@@ -58,6 +59,6 @@ export default async function SolicitudesPage() {
           </Link>
         ))}
       </div>
-    </AppShell>
+    </>
   );
 }

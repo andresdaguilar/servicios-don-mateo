@@ -3,16 +3,15 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { registerAction } from "@/app/actions/auth";
-import { AppShell } from "@/components/layout/AppShell";
 import { PhoneField } from "@/components/forms/PhoneField";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function RegisterForm({ inviteCode }: { inviteCode?: string }) {
-  const [state, action, pending] = useActionState(registerAction, null);
+  const [state, action] = useActionState(registerAction, null);
   const invited = Boolean(inviteCode);
 
   return (
-    <AppShell backHref="/login">
-      <div className="px-5 pt-6 pb-8">
+          <div className="px-5 pt-6 pb-8">
         <h1 className="font-serif text-2xl font-semibold">Crear cuenta</h1>
         <p className="mt-1 text-sm text-carbon/65">
           {invited
@@ -46,13 +45,12 @@ export function RegisterForm({ inviteCode }: { inviteCode?: string }) {
             />
           )}
           {state?.error && <p className="text-sm text-coral">{state.error}</p>}
-          <button
-            type="submit"
-            disabled={pending}
+          <SubmitButton
+            pendingLabel="Creando…"
             className="mt-2 rounded-2xl bg-brand py-3.5 font-semibold text-white"
           >
-            {pending ? "Creando…" : "Registrarme"}
-          </button>
+            Registrarme
+          </SubmitButton>
         </form>
         <p className="mt-4 text-center text-sm text-carbon/60">
           ¿Ya tenés cuenta?{" "}
@@ -61,6 +59,5 @@ export function RegisterForm({ inviteCode }: { inviteCode?: string }) {
           </Link>
         </p>
       </div>
-    </AppShell>
   );
 }

@@ -8,7 +8,6 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { auth } from "@/auth";
-import { AppShell } from "@/components/layout/AppShell";
 import { Avatar } from "@/components/ui/Avatar";
 import { RatingBadge } from "@/components/ui/RatingBadge";
 import { getProviderById, isFavorite, isPublicProviderStatus } from "@/lib/queries";
@@ -17,6 +16,7 @@ import { tagLabel, timeAgo } from "@/lib/utils";
 import { toggleFavoriteAction } from "@/app/actions/social";
 import { setProviderStatus } from "@/app/actions/moderation";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export default async function ProviderPage({
   params,
@@ -59,25 +59,6 @@ export default async function ProviderPage({
   ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return (
-    <AppShell
-      backHref="/buscar"
-      right={
-        session?.user ? (
-          <form action={toggleFavoriteAction.bind(null, id)}>
-            <button
-              type="submit"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-mist"
-              aria-label="Favorito"
-            >
-              <Heart
-                className={fav ? "h-5 w-5 fill-coral text-coral" : "h-5 w-5 text-carbon"}
-                strokeWidth={1.75}
-              />
-            </button>
-          </form>
-        ) : undefined
-      }
-    >
       <div className="flex flex-1 flex-col">
         <div className="flex-1 pb-4">
         {aviso === "telefono" && (
@@ -92,7 +73,26 @@ export default async function ProviderPage({
         )}
 
         <div className="mt-4 flex flex-col items-center px-4 text-center">
-          <Avatar name={provider.name} src={photo} size="lg" />
+          <div className="relative">
+            <Avatar name={provider.name} src={photo} size="lg" />
+            {session?.user ? (
+              <form
+                action={toggleFavoriteAction.bind(null, id)}
+                className="absolute -right-3 -top-1"
+              >
+                <SubmitButton
+                  pendingOnlySpinner
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-sm ring-1 ring-line"
+                  aria-label={fav ? "Quitar de favoritos" : "Guardar en favoritos"}
+                >
+                  <Heart
+                    className={fav ? "h-5 w-5 fill-coral text-coral" : "h-5 w-5 text-carbon"}
+                    strokeWidth={1.75}
+                  />
+                </SubmitButton>
+              </form>
+            ) : null}
+          </div>
           <h1 className="mt-3 font-serif text-2xl font-semibold text-carbon">{provider.name}</h1>
           <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
             <RatingBadge value={provider.stats.avg} count={provider.stats.count} />
@@ -216,16 +216,16 @@ export default async function ProviderPage({
             <div className="mt-2 flex flex-wrap gap-2">
               {provider.status !== "approved" && (
                 <form action={setProviderStatus.bind(null, id, "approved")}>
-                  <button className="rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-white">
+                  <SubmitButton className="rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-white">
                     Marcar revisada
-                  </button>
+                  </SubmitButton>
                 </form>
               )}
               {isPublicProviderStatus(provider.status) && (
                 <form action={setProviderStatus.bind(null, id, "hidden")}>
-                  <button className="rounded-full bg-coral px-3 py-1.5 text-xs font-semibold text-white">
+                  <SubmitButton className="rounded-full bg-coral px-3 py-1.5 text-xs font-semibold text-white">
                     Dar de baja
-                  </button>
+                  </SubmitButton>
                 </form>
               )}
               <Link
@@ -276,7 +276,6 @@ export default async function ProviderPage({
         </div>
         </div>
       </div>
-    </AppShell>
   );
 }
 

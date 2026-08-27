@@ -3,22 +3,26 @@
 import { FormEvent, useActionState, useState } from "react";
 import Link from "next/link";
 import { createProviderAction } from "@/app/actions/providers";
-import { AppShell } from "@/components/layout/AppShell";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { cn } from "@/lib/utils";
 
 type Cat = { id: string; name: string };
 
 export function ProviderForm({
   categories,
-  source,
+  defaultOwn = false,
+  alreadyOwned,
 }: {
   categories: Cat[];
-  source: "neighbor" | "self";
+  defaultOwn?: boolean;
+  alreadyOwned?: { id: string; name: string } | null;
 }) {
-  const [state, action, pending] = useActionState(createProviderAction, null);
+  const [state, action] = useActionState(createProviderAction, null);
+  const [isOwn, setIsOwn] = useState(defaultOwn && !alreadyOwned);
   const [localError, setLocalError] = useState<string | null>(null);
   const [missing, setMissing] = useState<Set<string>>(new Set());
   const [photoLabel, setPhotoLabel] = useState("Ninguna seleccionada");
+  const own = isOwn && !alreadyOwned;
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     const form = e.currentTarget;
@@ -45,33 +49,56 @@ export function ProviderForm({
   const error = localError ?? state?.error ?? null;
 
   return (
-    <AppShell backHref="/">
-      <form
+          <form
         action={action}
         noValidate
         onSubmit={onSubmit}
         className="flex flex-1 flex-col gap-3 px-4 pb-8 pt-4"
       >
-        <input type="hidden" name="source" value={source} />
-        <h1 className="font-serif text-2xl font-semibold">
-          {source === "self" ? "Publicar servicio" : "Cargar prestador"}
-        </h1>
+        <input type="hidden" name="source" value={own ? "self" : "neighbor"} />
+        <h1 className="font-serif text-2xl font-semibold">Publicar un servicio</h1>
         <p className="text-sm text-carbon/65">
-          {source === "self"
-            ? "Tu ficha queda pendiente hasta que un moderador la apruebe."
-            : "Si el teléfono ya existe, vas a poder recomendar la ficha actual."}{" "}
-          Nombre, teléfono y rubro son obligatorios. Se publica ya y queda pendiente de revisión.
+          {own
+            ? "Esta ficha queda a tu nombre. Se ve en el barrio ya y un moderador la revisa si hace falta."
+            : "Cargá a alguien que conocés y recomendarías. Si el teléfono ya está, te llevamos a esa ficha."}
         </p>
+        {alreadyOwned ? (
+          <p className="rounded-2xl bg-mist px-3.5 py-3 text-sm text-carbon/70">
+            Ya publicaste tu oficio ({alreadyOwned.name}). Este formulario es para recomendar a
+            otra persona.{" "}
+            <Link href={`/prestadores/${alreadyOwned.id}`} className="font-semibold text-brand-ink">
+              Ver mi ficha
+            </Link>
+          </p>
+        ) : (
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-card px-3.5 py-3 ring-1 ring-line has-[:checked]:bg-brand-soft has-[:checked]:ring-brand/30">
+            <input
+              type="checkbox"
+              checked={isOwn}
+              onChange={(e) => setIsOwn(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-brand"
+            />
+            <span>
+              <span className="block text-sm font-semibold text-carbon">
+                Este es mi propio servicio
+              </span>
+              <span className="mt-0.5 block text-xs leading-relaxed text-carbon/60">
+                Marcá esto solo si el oficio es tuyo. Un vecino puede cargar varios contactos; de
+                tu cuenta sale una sola ficha propia.
+              </span>
+            </span>
+          </label>
+        )}
         <Field
           name="name"
-          label="Nombre"
-          placeholder="Daniel Gasista"
+          label={own ? "Tu nombre o cómo te conocen" : "Nombre del prestador"}
+          placeholder={own ? "Ana, gasista" : "Daniel Gasista"}
           required
           invalid={missing.has("name")}
         />
         <Field
           name="phone"
-          label="Teléfono / WhatsApp"
+          label={own ? "Tu WhatsApp" : "Teléfono / WhatsApp"}
           placeholder="11 5555-1234"
           required
           invalid={missing.has("phone")}
@@ -160,15 +187,13 @@ export function ProviderForm({
             </Link>
           )}
         </div>
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-2xl bg-brand py-3.5 font-semibold text-white disabled:opacity-60"
+        <SubmitButton
+          pendingLabel="Publicando…"
+          className="rounded-2xl bg-brand py-3.5 font-semibold text-white"
         >
-          {pending ? "Guardando…" : "Publicar"}
-        </button>
+          {own ? "Publicar mi oficio" : "Publicar"}
+        </SubmitButton>
       </form>
-    </AppShell>
   );
 }
 

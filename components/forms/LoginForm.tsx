@@ -3,15 +3,14 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { loginAction } from "@/app/actions/auth";
-import { AppShell } from "@/components/layout/AppShell";
 import { PhoneField } from "@/components/forms/PhoneField";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function LoginForm({ from }: { from: string }) {
-  const [state, action, pending] = useActionState(loginAction, null);
+  const [state, action] = useActionState(loginAction, null);
 
   return (
-    <AppShell backHref="/">
-      <div className="px-5 pt-6 pb-8">
+          <div className="px-5 pt-6 pb-8">
         <h1 className="font-serif text-2xl font-semibold">Entrar</h1>
         <p className="mt-1 text-sm text-carbon/65">Para recomendar, guardar y publicar.</p>
         <form action={action} className="mt-6 flex flex-col gap-3">
@@ -25,13 +24,12 @@ export function LoginForm({ from }: { from: string }) {
             className="rounded-2xl bg-mist px-3 py-3 text-sm outline-none"
           />
           {state?.error && <p className="text-sm text-coral">{state.error}</p>}
-          <button
-            type="submit"
-            disabled={pending}
+          <SubmitButton
+            pendingLabel="Entrando…"
             className="mt-2 rounded-2xl bg-brand py-3.5 font-semibold text-white"
           >
-            {pending ? "Entrando…" : "Entrar"}
-          </button>
+            Entrar
+          </SubmitButton>
         </form>
         <p className="mt-4 text-center text-sm text-carbon/60">
           ¿No tenés cuenta?{" "}
@@ -45,6 +43,5 @@ export function LoginForm({ from }: { from: string }) {
           </Link>
         </p>
       </div>
-    </AppShell>
   );
 }

@@ -2,13 +2,12 @@
 
 import { useActionState } from "react";
 import { commentAction } from "@/app/actions/social";
-import { AppShell } from "@/components/layout/AppShell";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function CommentForm({ providerId }: { providerId: string }) {
-  const [state, action, pending] = useActionState(commentAction, null);
+  const [state, action] = useActionState(commentAction, null);
 
   return (
-    <AppShell backHref={`/prestadores/${providerId}`}>
       <form action={action} className="flex flex-1 flex-col gap-4 px-4 pb-8 pt-4">
         <h1 className="font-serif text-2xl font-semibold">Comentar</h1>
         <input type="hidden" name="providerId" value={providerId} />
@@ -22,14 +21,12 @@ export function CommentForm({ providerId }: { providerId: string }) {
         />
         {state?.error && <p className="text-sm text-coral">{state.error}</p>}
         {state?.ok && <p className="text-sm text-brand-ink">Comentario publicado.</p>}
-        <button
-          type="submit"
-          disabled={pending}
+        <SubmitButton
+          pendingLabel="Publicando…"
           className="mt-auto rounded-2xl bg-brand py-3.5 font-semibold text-white"
         >
           Publicar
-        </button>
+        </SubmitButton>
       </form>
-    </AppShell>
   );
 }

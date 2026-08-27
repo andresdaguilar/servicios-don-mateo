@@ -3,10 +3,10 @@
 import { FormEvent, useActionState, useState } from "react";
 import { reportAction } from "@/app/actions/social";
 import { REPORT_REASONS } from "@/lib/constants";
-import { AppShell } from "@/components/layout/AppShell";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function ReportForm({ providerId }: { providerId: string }) {
-  const [state, action, pending] = useActionState(reportAction, null);
+  const [state, action] = useActionState(reportAction, null);
   const [localError, setLocalError] = useState<string | null>(null);
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -29,7 +29,6 @@ export function ReportForm({ providerId }: { providerId: string }) {
   const error = localError ?? state?.error ?? null;
 
   return (
-    <AppShell backHref={`/prestadores/${providerId}`}>
       <form
         action={action}
         noValidate
@@ -75,14 +74,12 @@ export function ReportForm({ providerId }: { providerId: string }) {
         {state?.ok && (
           <p className="text-sm text-brand-ink">Gracias. Un moderador lo va a revisar.</p>
         )}
-        <button
-          type="submit"
-          disabled={pending}
+        <SubmitButton
+          pendingLabel="Enviando…"
           className="mt-auto rounded-2xl bg-coral py-3.5 font-semibold text-white"
         >
-          {pending ? "Enviando…" : "Enviar reporte"}
-        </button>
+          Enviar reporte
+        </SubmitButton>
       </form>
-    </AppShell>
   );
 }

@@ -7,7 +7,7 @@ export function Logo({ className, size = 40 }: { className?: string; size?: numb
       alt=""
       width={size}
       height={size}
-      className={cn("shrink-0 object-contain", className)}
+      className={cn("shrink-0 object-contain dark:brightness-0 dark:invert", className)}
       aria-hidden
     />
   );

@@ -77,9 +77,33 @@ label,
 [role="button"],
 summary {
   cursor: pointer;
+  touch-action: manipulation;
+}
+
+a:active,
+button:active:not(:disabled),
+[type="submit"]:active:not(:disabled),
+[role="button"]:active,
+summary:active {
+  opacity: 0.72;
 }
 
 button:disabled,
 [type="submit"]:disabled {
   cursor: not-allowed;
+  pointer-events: none;
+}
+
+.nav-progress-bar {
+  width: 40%;
+  animation: nav-progress 900ms ease-in-out infinite;
+}
+
+@keyframes nav-progress {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
 }

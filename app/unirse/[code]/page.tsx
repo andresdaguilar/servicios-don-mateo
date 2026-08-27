@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AppShell } from "@/components/layout/AppShell";
 import { isValidInviteCode } from "@/lib/invite";
 
 export default async function UnirsePage({
@@ -14,8 +13,7 @@ export default async function UnirsePage({
   }
 
   return (
-    <AppShell backHref="/">
-      <div className="px-5 pt-6">
+          <div className="px-5 pt-6">
         <h1 className="font-serif text-2xl font-semibold">Link inválido</h1>
         <p className="mt-2 text-sm text-carbon/65">
           Este no es el link de invitación del grupo. Pedilo de nuevo o usá el código.
@@ -24,6 +22,5 @@ export default async function UnirsePage({
           Ir al registro
         </Link>
       </div>
-    </AppShell>
   );
 }

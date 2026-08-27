@@ -18,8 +18,10 @@ export default auth((req) => {
   if (pathname.startsWith("/moderacion")) {
     if (!isLoggedIn || req.auth?.user.role !== "moderator") {
       const url = req.nextUrl.clone();
+      const from = `${pathname}${req.nextUrl.search}`;
       url.pathname = "/login";
-      url.searchParams.set("from", pathname);
+      url.search = "";
+      url.searchParams.set("from", from);
       return NextResponse.redirect(url);
     }
   }
@@ -27,8 +29,10 @@ export default auth((req) => {
   if (WRITE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     if (!isLoggedIn) {
       const url = req.nextUrl.clone();
+      const from = `${pathname}${req.nextUrl.search}`;
       url.pathname = "/login";
-      url.searchParams.set("from", pathname);
+      url.search = "";
+      url.searchParams.set("from", from);
       return NextResponse.redirect(url);
     }
   }

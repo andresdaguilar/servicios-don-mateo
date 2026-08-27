@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Phone } from "lucide-react";
-import { AppShell } from "@/components/layout/AppShell";
 import { ProviderCard } from "@/components/ui/ProviderCard";
 import { getUrgencyContacts, searchProviders } from "@/lib/queries";
 import { telLink, whatsappLink } from "@/lib/phone";
@@ -12,8 +11,7 @@ export default async function UrgenciasPage() {
   ]);
 
   return (
-    <AppShell backHref="/">
-      <div className="px-4 pb-8 pt-4">
+          <div className="px-4 pb-8 pt-4">
         <h1 className="font-serif text-2xl font-semibold">Urgencias</h1>
         <p className="text-sm text-carbon/65">
           Lo que suele hacer falta rápido. También están administración y emergencias del barrio.
@@ -55,6 +53,5 @@ export default async function UrgenciasPage() {
           ))}
         </div>
       </div>
-    </AppShell>
   );
 }

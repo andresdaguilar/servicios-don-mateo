@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { AppShell } from "@/components/layout/AppShell";
 
 export default function GraciasPage() {
   return (
-    <AppShell backHref="/">
-      <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
+          <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
         <h1 className="font-serif text-2xl font-semibold text-carbon">Quedó en revisión</h1>
         <p className="mt-3 text-sm leading-relaxed text-carbon/70">
           La ficha ya se ve en el barrio y queda pendiente de revisión. Si un vecino la reporta, un
@@ -17,6 +15,5 @@ export default function GraciasPage() {
           Volver al inicio
         </Link>
       </div>
-    </AppShell>
   );
 }

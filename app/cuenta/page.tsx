@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AppShell } from "@/components/layout/AppShell";
 import { logoutAction } from "@/app/actions/auth";
 import { prisma } from "@/lib/db";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export default async function CuentaPage() {
   const session = await auth();
@@ -15,8 +15,7 @@ export default async function CuentaPage() {
   });
 
   return (
-    <AppShell>
-      <div className="px-4 pt-5 pb-8">
+          <div className="px-4 pt-5 pb-8">
         <h1 className="font-serif text-2xl font-semibold">Perfil</h1>
         <div className="mt-4 rounded-2xl bg-card px-4 py-4 ring-1 ring-line">
           <p className="font-semibold">{session.user.name}</p>
@@ -32,9 +31,12 @@ export default async function CuentaPage() {
 
         <div className="mt-4 flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-line">
           <Row href="/favoritos" label="Favoritos" />
-          <Row href="/prestadores/nuevo?origen=vecino" label="Recomendar un prestador" />
-          <Row href="/prestadores/nuevo" label="Publicar mi servicio" />
-          {owned && <Row href={`/prestadores/${owned.id}`} label={`Mi ficha · ${owned.name}`} />}
+          <Row href="/prestadores/nuevo" label="Publicar un servicio" />
+          {owned ? (
+            <Row href={`/prestadores/${owned.id}`} label={`Mi ficha · ${owned.name}`} />
+          ) : (
+            <Row href="/prestadores/nuevo?origen=propio" label="Publicar mi oficio" />
+          )}
           {session.user.role === "moderator" && (
             <Row href="/moderacion" label="Moderar publicaciones" />
           )}
@@ -42,12 +44,14 @@ export default async function CuentaPage() {
         </div>
 
         <form action={logoutAction} className="mt-6">
-          <button type="submit" className="w-full text-sm font-semibold text-coral">
+          <SubmitButton
+            pendingLabel="Saliendo…"
+            className="w-full text-sm font-semibold text-coral"
+          >
             Cerrar sesión
-          </button>
+          </SubmitButton>
         </form>
       </div>
-    </AppShell>
   );
 }
 
@@ -55,6 +59,7 @@ function Row({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
+      prefetch
       className="border-b border-line px-4 py-3.5 text-sm last:border-0"
     >
       {label}

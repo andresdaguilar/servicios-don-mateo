@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Shield } from "lucide-react";
 import { ProviderStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { AppShell } from "@/components/layout/AppShell";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import {
   dismissReport,
   mergeProviders,
@@ -70,7 +70,7 @@ export default async function ModeracionPage({
     ]);
 
   return (
-    <AppShell backHref="/">
+    <>
       <div className="px-4 pt-5">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-brand-ink" />
@@ -81,6 +81,7 @@ export default async function ModeracionPage({
             <Link
               key={t.id}
               href={`/moderacion?tab=${t.id}`}
+              prefetch
               className={cn(
                 "relative shrink-0 rounded-full px-3 py-1.5 text-[13px] font-medium",
                 tab === t.id ? "bg-brand text-white" : "bg-card text-carbon ring-1 ring-line",
@@ -138,26 +139,26 @@ export default async function ModeracionPage({
                     </Link>
                   )}
                   <form action={resolveReport.bind(null, r.id, "Revisado")}>
-                    <button className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
+                    <SubmitButton className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
                       Resolver
-                    </button>
+                    </SubmitButton>
                   </form>
                   <form action={dismissReport.bind(null, r.id)}>
-                    <button className="rounded-full px-3 py-1 text-xs font-semibold text-carbon/50">
+                    <SubmitButton className="rounded-full px-3 py-1 text-xs font-semibold text-carbon/50">
                       Descartar
-                    </button>
+                    </SubmitButton>
                   </form>
                   {r.provider && (
                     <>
                       <form action={setProviderStatus.bind(null, r.provider.id, "hidden")}>
-                        <button className="rounded-full bg-coral/10 px-3 py-1 text-xs font-semibold text-coral">
+                        <SubmitButton className="rounded-full bg-coral/10 px-3 py-1 text-xs font-semibold text-coral">
                           Dar de baja
-                        </button>
+                        </SubmitButton>
                       </form>
                       <form action={setProviderStatus.bind(null, r.provider.id, "outdated")}>
-                        <button className="rounded-full px-3 py-1 text-xs font-semibold text-carbon/60">
+                        <SubmitButton className="rounded-full px-3 py-1 text-xs font-semibold text-carbon/60">
                           Desactualizado
-                        </button>
+                        </SubmitButton>
                       </form>
                     </>
                   )}
@@ -194,14 +195,14 @@ export default async function ModeracionPage({
                     Ver ficha
                   </Link>
                   <form action={setProviderStatus.bind(null, p.id, "approved")}>
-                    <button className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
+                    <SubmitButton className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
                       Marcar revisada
-                    </button>
+                    </SubmitButton>
                   </form>
                   <form action={setProviderStatus.bind(null, p.id, "hidden")}>
-                    <button className="rounded-full bg-coral px-3 py-1 text-xs font-semibold text-white">
+                    <SubmitButton className="rounded-full bg-coral px-3 py-1 text-xs font-semibold text-white">
                       Dar de baja
-                    </button>
+                    </SubmitButton>
                   </form>
                 </div>
               </article>
@@ -236,15 +237,15 @@ export default async function ModeracionPage({
                   </Link>
                   {p.status !== "approved" && (
                     <form action={setProviderStatus.bind(null, p.id, "approved")}>
-                      <button className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
+                      <SubmitButton className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
                         Marcar revisada
-                      </button>
+                      </SubmitButton>
                     </form>
                   )}
                   <form action={setProviderStatus.bind(null, p.id, "hidden")}>
-                    <button className="rounded-full bg-coral px-3 py-1 text-xs font-semibold text-white">
+                    <SubmitButton className="rounded-full bg-coral px-3 py-1 text-xs font-semibold text-white">
                       Dar de baja
-                    </button>
+                    </SubmitButton>
                   </form>
                 </div>
               </article>
@@ -311,13 +312,13 @@ export default async function ModeracionPage({
                   />
                   Urgencia
                 </label>
-                <button className="text-xs font-semibold text-brand-ink">Guardar</button>
+                <SubmitButton className="text-xs font-semibold text-brand-ink">Guardar</SubmitButton>
               </form>
             ))}
           </div>
         )}
       </div>
-    </AppShell>
+    </>
   );
 }
 
@@ -359,9 +360,9 @@ function MergeForm({
           </option>
         ))}
       </select>
-      <button className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
+      <SubmitButton className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
         Fusionar
-      </button>
+      </SubmitButton>
     </form>
   );
 }

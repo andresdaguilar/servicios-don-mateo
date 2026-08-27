@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { replyRequestAction } from "@/app/actions/requests";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function ReplyForm({
   requestId,
@@ -10,7 +11,7 @@ export function ReplyForm({
   requestId: string;
   providers: { id: string; name: string }[];
 }) {
-  const [state, action, pending] = useActionState(replyRequestAction, null);
+  const [state, action] = useActionState(replyRequestAction, null);
 
   return (
     <form action={action} className="mt-4 flex flex-col gap-2">
@@ -32,13 +33,12 @@ export function ReplyForm({
         ))}
       </select>
       {state?.error && <p className="text-sm text-coral">{state.error}</p>}
-      <button
-        type="submit"
-        disabled={pending}
+      <SubmitButton
+        pendingLabel="Enviando…"
         className="rounded-2xl bg-brand py-3 font-semibold text-white"
       >
         Responder
-      </button>
+      </SubmitButton>
     </form>
   );
 }

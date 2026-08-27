@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { AppShell } from "@/components/layout/AppShell";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { CategorySelect } from "@/components/ui/CategorySelect";
 import { ProviderCard } from "@/components/ui/ProviderCard";
@@ -21,7 +20,7 @@ export default async function BuscarPage({
   const selected = categories.find((c) => c.slug === rubro);
 
   return (
-    <AppShell backHref="/">
+    <>
       <div className="px-4 pt-4">
         <h1 className="font-serif text-2xl font-semibold">
           {selected?.name ?? "Todas las categorías"}
@@ -44,16 +43,16 @@ export default async function BuscarPage({
               Podés cargar un prestador si lo conocés.
             </p>
             <Link
-              href="/prestadores/nuevo?origen=vecino"
+              href="/prestadores/nuevo"
               className="mt-4 inline-flex rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white"
             >
-              Cargar prestador
+              Publicar un servicio
             </Link>
           </div>
         ) : (
           results.map((p) => <ProviderCard key={p.id} provider={p} />)
         )}
       </div>
-    </AppShell>
+    </>
   );
 }

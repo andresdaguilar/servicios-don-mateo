@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { recommendAction } from "@/app/actions/social";
 import { TRUST_TAGS } from "@/lib/constants";
-import { AppShell } from "@/components/layout/AppShell";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function RecommendForm({
   providerId,
@@ -12,10 +12,9 @@ export function RecommendForm({
   providerId: string;
   providerName: string;
 }) {
-  const [state, action, pending] = useActionState(recommendAction, null);
+  const [state, action] = useActionState(recommendAction, null);
 
   return (
-    <AppShell backHref={`/prestadores/${providerId}`}>
       <form action={action} className="flex flex-1 flex-col gap-4 px-4 pb-8 pt-4">
         <h1 className="font-serif text-2xl font-semibold">Recomendar</h1>
         <input type="hidden" name="providerId" value={providerId} />
@@ -76,14 +75,12 @@ export function RecommendForm({
 
         {state?.error && <p className="text-sm text-coral">{state.error}</p>}
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="mt-auto rounded-2xl bg-brand py-3.5 font-semibold text-white disabled:opacity-60"
+        <SubmitButton
+          pendingLabel="Enviando…"
+          className="mt-auto rounded-2xl bg-brand py-3.5 font-semibold text-white"
         >
-          {pending ? "Enviando…" : "Publicar recomendación"}
-        </button>
+          Publicar recomendación
+        </SubmitButton>
       </form>
-    </AppShell>
   );
 }

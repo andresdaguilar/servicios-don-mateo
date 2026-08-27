@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { AppShell } from "@/components/layout/AppShell";
 
 export default function Error({
   retry,
@@ -14,8 +13,7 @@ export default function Error({
   const again = retry ?? reset;
 
   return (
-    <AppShell backHref="/">
-      <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
+          <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
         <h1 className="font-serif text-2xl font-semibold">Algo no salió bien</h1>
         <p className="mt-2 text-sm leading-relaxed text-carbon/65">
           No pudimos completar eso. Probá de nuevo; si sigue pasando, volvé al inicio.
@@ -35,6 +33,5 @@ export default function Error({
           </Link>
         </div>
       </div>
-    </AppShell>
   );
 }
