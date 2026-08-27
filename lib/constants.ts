@@ -32,6 +32,29 @@ export const POPULAR_CATEGORY_SLUGS = [
   "bicicletas",
 ] as const;
 
+export const HOME_PROMPTS = [
+  "¿Qué estás buscando hoy?",
+  "¿Qué necesitás resolver hoy?",
+  "¿A quién necesitás encontrar?",
+  "¿Qué servicio necesitás?",
+  "¿Qué contacto estás buscando?",
+  "¿Con qué te damos una mano?",
+  "¿Qué necesitás en el barrio?",
+  "¿Qué estás necesitando?",
+  "¿A quién querés llamar?",
+  "¿Qué querés solucionar?",
+  "¿Buscás algún servicio?",
+  "¿Qué recomendación necesitás?",
+  "¿Qué rubro estás buscando?",
+  "¿Qué contacto te vendría bien?",
+  "¿Qué necesitás encontrar rápido?",
+  "¿Hay algo que resolver en casa?",
+  "¿Buscás alguien recomendado?",
+  "¿Qué oficio estás buscando?",
+  "¿Qué necesitás consultar?",
+  "¿Qué se te rompió hoy?",
+] as const;
+
 export const CATEGORY_SEED = [
   { slug: "administracion", name: "Administración", icon: "building-2", isUrgency: true, sortOrder: 1 },
   { slug: "albanileria", name: "Albañilería", icon: "brick-wall", isUrgency: false, sortOrder: 2 },

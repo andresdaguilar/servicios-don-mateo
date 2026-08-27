@@ -1,31 +1,21 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { auth } from "@/auth";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { ProviderCard } from "@/components/ui/ProviderCard";
 import { CategoryGlyph } from "@/components/ui/CategoryGlyph";
+import { HomeHero } from "@/components/home/HomeHero";
 import { getPopularCategories, getRecommendedNearby } from "@/lib/queries";
 
 export default async function HomePage() {
-  const session = await auth();
   const [categories, recommended] = await Promise.all([
     getPopularCategories(),
     getRecommendedNearby(6),
   ]);
 
-  const hello = session?.user?.displayName
-    ? `Hola, ${session.user.displayName.split(" ")[0]}`
-    : "Hola, vecino";
-
   return (
     <>
       <div className="px-4 pt-6">
-        <h1 className="font-serif text-[28px] font-semibold leading-tight text-carbon">
-          {hello} 👋
-          <span className="mt-1 block text-[22px] font-medium text-carbon/80">
-            ¿En qué podemos ayudarte?
-          </span>
-        </h1>
+        <HomeHero />
         <SearchBar className="mt-5" />
       </div>
 
