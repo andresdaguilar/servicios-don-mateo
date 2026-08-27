@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { ReplyForm } from "@/components/forms/ReplyForm";
 import { closeRequestAction } from "@/app/actions/requests";
 import { timeAgo } from "@/lib/utils";
-import { PUBLIC_PROVIDER_STATUSES } from "@/lib/queries";
+import { LISTED_PROVIDER_WHERE } from "@/lib/queries";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export default async function SolicitudDetailPage({
@@ -32,7 +32,9 @@ export default async function SolicitudDetailPage({
   if (!request) notFound();
 
   const providers = await prisma.provider.findMany({
-    where: { status: { in: PUBLIC_PROVIDER_STATUSES } },
+    where: {
+      ...LISTED_PROVIDER_WHERE,
+    },
     select: { id: true, name: true },
     orderBy: { name: "asc" },
     take: 80,

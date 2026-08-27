@@ -110,6 +110,8 @@ model Provider {
   duplicateOf        Provider?      @relation("Duplicates", fields: [duplicateOfId], references: [id])
   duplicates         Provider[]     @relation("Duplicates")
   lastRecommendedAt  DateTime?
+  pausedAt           DateTime?
+  deletedAt          DateTime?
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
@@ -123,6 +125,8 @@ model Provider {
 
   @@index([status])
   @@index([name])
+  @@index([deletedAt])
+  @@index([pausedAt])
 }
 
 model ProviderCategory {

@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ProviderStatus } from "@prisma/client";
 import { auth } from "@/auth";
 import { logoutAction } from "@/app/actions/auth";
 import { prisma } from "@/lib/db";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ListingActions } from "@/components/providers/ListingActions";
+import { isPublicProviderStatus, listingStatus } from "@/lib/queries";
 
 export default async function CuentaPage() {
   const session = await auth();
@@ -13,17 +16,20 @@ export default async function CuentaPage() {
   const [owned, mine] = await Promise.all([
     prisma.provider.findFirst({
       where: { ownerId: session.user.id },
-      select: { id: true, name: true, status: true },
+      select: { id: true, name: true, status: true, pausedAt: true, deletedAt: true },
     }),
     prisma.provider.findMany({
       where: {
         OR: [{ ownerId: session.user.id }, { createdById: session.user.id }],
         status: { notIn: ["duplicate", "rejected"] },
       },
-      select: { id: true, name: true, status: true },
+      select: { id: true, name: true, status: true, pausedAt: true, deletedAt: true },
       orderBy: { updatedAt: "desc" },
     }),
   ]);
+
+  const active = mine.filter((p) => !p.deletedAt);
+  const deleted = mine.filter((p) => p.deletedAt);
 
   return (
     <div className="px-4 pt-5 pb-8">
@@ -43,8 +49,10 @@ export default async function CuentaPage() {
       <div className="mt-4 flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-line">
         <Row href="/favoritos" label="Favoritos" />
         <Row href="/prestadores/nuevo" label="Publicar un servicio" />
-        {owned ? (
+        {owned && !owned.deletedAt ? (
           <Row href={`/prestadores/${owned.id}`} label={`Mi oficio · ${owned.name}`} />
+        ) : owned?.deletedAt ? (
+          <Row href={`/prestadores/${owned.id}`} label={`Mi oficio borrado · ${owned.name}`} />
         ) : (
           <Row href="/prestadores/nuevo?origen=propio" label="Publicar mi oficio" />
         )}
@@ -54,34 +62,26 @@ export default async function CuentaPage() {
         <Row href="/faq" label="Preguntas frecuentes" />
       </div>
 
-      {mine.length > 0 && (
+      {active.length > 0 && (
         <section className="mt-5">
           <h2 className="text-sm font-semibold text-carbon">Mis publicaciones</h2>
           <div className="mt-2 flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-line">
-            {mine.map((p) => (
-              <div
-                key={p.id}
-                className="flex items-center justify-between gap-2 border-b border-line px-4 py-3 last:border-0"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{p.name}</p>
-                  <StatusBadge status={p.status} />
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <Link
-                    href={`/prestadores/${p.id}`}
-                    className="text-xs font-semibold text-brand-ink"
-                  >
-                    Ver
-                  </Link>
-                  <Link
-                    href={`/prestadores/${p.id}/editar`}
-                    className="text-xs font-semibold text-brand-ink"
-                  >
-                    Editar
-                  </Link>
-                </div>
-              </div>
+            {active.map((p) => (
+              <ListingRow key={p.id} provider={p} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {deleted.length > 0 && (
+        <section className="mt-5">
+          <h2 className="text-sm font-semibold text-carbon">Publicaciones borradas</h2>
+          <p className="mt-1 text-xs text-carbon/50">
+            Los vecinos no las ven. Podés restaurarlas cuando quieras.
+          </p>
+          <div className="mt-2 flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-line">
+            {deleted.map((p) => (
+              <ListingRow key={p.id} provider={p} />
             ))}
           </div>
         </section>
@@ -95,6 +95,53 @@ export default async function CuentaPage() {
           Cerrar sesión
         </SubmitButton>
       </form>
+    </div>
+  );
+}
+
+function ListingRow({
+  provider,
+}: {
+  provider: {
+    id: string;
+    name: string;
+    status: ProviderStatus;
+    pausedAt: Date | null;
+    deletedAt: Date | null;
+  };
+}) {
+  const deleted = Boolean(provider.deletedAt);
+  return (
+    <div className="flex flex-col gap-2 border-b border-line px-4 py-3 last:border-0">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">{provider.name}</p>
+          <StatusBadge status={listingStatus(provider)} />
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <Link
+            href={`/prestadores/${provider.id}`}
+            className="text-xs font-semibold text-brand-ink"
+          >
+            Ver
+          </Link>
+          {!deleted && (
+            <Link
+              href={`/prestadores/${provider.id}/editar`}
+              className="text-xs font-semibold text-brand-ink"
+            >
+              Editar
+            </Link>
+          )}
+        </div>
+      </div>
+      <ListingActions
+        providerId={provider.id}
+        paused={Boolean(provider.pausedAt)}
+        deleted={deleted}
+        canToggle={isPublicProviderStatus(provider.status)}
+        compact
+      />
     </div>
   );
 }

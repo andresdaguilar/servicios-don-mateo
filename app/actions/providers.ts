@@ -7,7 +7,8 @@ import { ProviderSource, ProviderStatus } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { normalizePhone } from "@/lib/phone";
-import { findProviderByPhone, findSimilarProviders } from "@/lib/queries";
+import { findProviderByPhone, findSimilarProviders, isPublicProviderStatus } from "@/lib/queries";
+import { canEditProvider } from "@/lib/permissions";
 import { requireUser } from "@/app/actions/auth";
 import type { ActionState } from "@/app/actions/auth";
 import { runAction } from "@/lib/errors";
@@ -64,6 +65,17 @@ export async function createProviderAction(
 
     const existing = await findProviderByPhone(phone);
     if (existing) {
+      if (existing.deletedAt) {
+        const mine =
+          existing.ownerId === user.id || existing.createdById === user.id;
+        if (mine) {
+          redirect(`/prestadores/${existing.id}`);
+        }
+        return {
+          error:
+            "Ese teléfono ya está en una ficha borrada. Si es tuya, restaurala desde Perfil.",
+        };
+      }
       redirect(`/prestadores/${existing.id}?aviso=telefono`);
     }
 
@@ -74,9 +86,16 @@ export async function createProviderAction(
     if (selfPublish) {
       const owned = await prisma.provider.findUnique({
         where: { ownerId: user.id },
-        select: { id: true, name: true },
+        select: { id: true, name: true, deletedAt: true },
       });
       if (owned) {
+        if (owned.deletedAt) {
+          return {
+            error: `Tu ficha (${owned.name}) está borrada. Restaurala desde tu perfil.`,
+            href: `/prestadores/${owned.id}`,
+            hrefLabel: "Ver mi ficha",
+          };
+        }
         return {
           error: `Ya publicaste un servicio (${owned.name}). Si querés cambiar algo, entrá a tu ficha.`,
           href: `/prestadores/${owned.id}`,
@@ -140,6 +159,9 @@ export async function updateProviderAction(
     if (!isOwner && !isCreator && !isMod) {
       return { error: "No podés editar esta ficha." };
     }
+    if (provider.deletedAt) {
+      return { error: "Esta ficha está borrada. Restaurala para editarla." };
+    }
 
     const categoryIds = formData.getAll("categoryIds").map(String).filter(Boolean);
     const parsed = providerSchema.omit({ source: true }).safeParse({
@@ -199,4 +221,73 @@ export async function updateProviderAction(
     revalidatePath("/cuenta");
     redirect(`/prestadores/${providerId}?aviso=editada`);
   });
+}
+
+function revalidateListing(providerId: string) {
+  revalidatePath(`/prestadores/${providerId}`);
+  revalidatePath("/moderacion");
+  revalidatePath("/");
+  revalidatePath("/buscar");
+  revalidatePath("/cuenta");
+  revalidatePath("/favoritos");
+}
+
+async function loadManagedListing(providerId: string) {
+  const user = await requireUser();
+  const provider = await prisma.provider.findUnique({ where: { id: providerId } });
+  if (!provider || !canEditProvider(user, provider)) {
+    throw new Error("FORBIDDEN");
+  }
+  return provider;
+}
+
+export async function pauseProviderAction(providerId: string) {
+  const provider = await loadManagedListing(providerId);
+  if (provider.deletedAt || provider.pausedAt || !isPublicProviderStatus(provider.status)) {
+    return;
+  }
+
+  await prisma.provider.update({
+    where: { id: providerId },
+    data: { pausedAt: new Date() },
+  });
+  revalidateListing(providerId);
+}
+
+export async function activateProviderAction(providerId: string) {
+  const provider = await loadManagedListing(providerId);
+  if (provider.deletedAt || !provider.pausedAt || !isPublicProviderStatus(provider.status)) {
+    return;
+  }
+
+  await prisma.provider.update({
+    where: { id: providerId },
+    data: { pausedAt: null },
+  });
+  revalidateListing(providerId);
+}
+
+export async function deleteProviderAction(providerId: string) {
+  const provider = await loadManagedListing(providerId);
+  if (provider.deletedAt) return;
+
+  await prisma.provider.update({
+    where: { id: providerId },
+    data: { deletedAt: new Date() },
+  });
+  revalidateListing(providerId);
+}
+
+export async function restoreProviderAction(providerId: string) {
+  const provider = await loadManagedListing(providerId);
+  if (!provider.deletedAt) return;
+
+  await prisma.provider.update({
+    where: { id: providerId },
+    data: {
+      deletedAt: null,
+      pausedAt: isPublicProviderStatus(provider.status) ? null : provider.pausedAt,
+    },
+  });
+  revalidateListing(providerId);
 }

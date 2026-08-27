@@ -34,8 +34,36 @@ export const PUBLIC_PROVIDER_STATUSES: ProviderStatus[] = [
   ProviderStatus.reported,
 ];
 
+export const LISTED_PROVIDER_WHERE = {
+  status: { in: PUBLIC_PROVIDER_STATUSES },
+  pausedAt: null,
+  deletedAt: null,
+} satisfies Prisma.ProviderWhereInput;
+
 export function isPublicProviderStatus(status: ProviderStatus) {
   return PUBLIC_PROVIDER_STATUSES.includes(status);
+}
+
+export function isListedProvider(provider: {
+  status: ProviderStatus;
+  pausedAt: Date | null;
+  deletedAt: Date | null;
+}) {
+  return (
+    isPublicProviderStatus(provider.status) &&
+    !provider.pausedAt &&
+    !provider.deletedAt
+  );
+}
+
+export function listingStatus(provider: {
+  status: string;
+  pausedAt: Date | null;
+  deletedAt: Date | null;
+}) {
+  if (provider.deletedAt) return "deleted";
+  if (provider.pausedAt) return "paused";
+  return provider.status;
 }
 
 export async function getCategories() {
@@ -59,7 +87,7 @@ export async function searchProviders(opts: {
   const q = opts.q?.trim();
   const providers = await prisma.provider.findMany({
     where: {
-      status: { in: PUBLIC_PROVIDER_STATUSES },
+      ...LISTED_PROVIDER_WHERE,
       ...(opts.urgency
         ? { categories: { some: { category: { isUrgency: true } } } }
         : {}),
@@ -93,7 +121,7 @@ export async function searchProviders(opts: {
 
 export async function getRecommendedNearby(limit = 8) {
   const providers = await prisma.provider.findMany({
-    where: { status: { in: PUBLIC_PROVIDER_STATUSES } },
+    where: { ...LISTED_PROVIDER_WHERE },
     include: providerInclude,
     orderBy: [{ lastRecommendedAt: "desc" }, { createdAt: "desc" }],
     take: limit,
@@ -120,6 +148,7 @@ export async function findSimilarProviders(name: string, excludeId?: string) {
   const candidates = await prisma.provider.findMany({
     where: {
       status: { notIn: [ProviderStatus.rejected, ProviderStatus.duplicate] },
+      deletedAt: null,
       ...(excludeId ? { id: { not: excludeId } } : {}),
     },
     select: { id: true, name: true, phone: true, status: true },
@@ -138,7 +167,7 @@ export async function getFavorites(userId: string) {
     orderBy: { createdAt: "desc" },
   });
   return favs
-    .filter((f) => isPublicProviderStatus(f.provider.status))
+    .filter((f) => isListedProvider(f.provider))
     .map((f) => withStats(f.provider));
 }
 

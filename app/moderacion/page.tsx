@@ -15,7 +15,7 @@ import {
 } from "@/app/actions/moderation";
 import { REPORT_REASONS } from "@/lib/constants";
 import { formatPhone } from "@/lib/phone";
-import { PUBLIC_PROVIDER_STATUSES } from "@/lib/queries";
+import { PUBLIC_PROVIDER_STATUSES, listingStatus } from "@/lib/queries";
 import { cn, timeAgo } from "@/lib/utils";
 
 const TABS = [
@@ -49,12 +49,16 @@ export default async function ModeracionPage({
         orderBy: { createdAt: "desc" },
       }),
       prisma.provider.findMany({
-        where: { status: { in: [ProviderStatus.pending, ProviderStatus.reported] } },
+        where: {
+          status: { in: [ProviderStatus.pending, ProviderStatus.reported] },
+          deletedAt: null,
+        },
         orderBy: { createdAt: "desc" },
       }),
       prisma.provider.findMany({
         where: {
           status: { in: PUBLIC_PROVIDER_STATUSES },
+          deletedAt: null,
           ...(autor ? { createdById: autor } : {}),
         },
         include: { createdBy: { select: { displayName: true } } },
@@ -62,6 +66,7 @@ export default async function ModeracionPage({
       }),
       prisma.provider.findMany({
         where: {
+          deletedAt: null,
           OR: [{ possibleDuplicate: true }, { status: ProviderStatus.duplicate }],
         },
         orderBy: { createdAt: "desc" },
@@ -73,7 +78,10 @@ export default async function ModeracionPage({
       }),
       prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
       prisma.provider.findMany({
-        where: { status: { notIn: [ProviderStatus.duplicate, ProviderStatus.rejected] } },
+        where: {
+          deletedAt: null,
+          status: { notIn: [ProviderStatus.duplicate, ProviderStatus.rejected] },
+        },
         select: { id: true, name: true, status: true },
         orderBy: { name: "asc" },
       }),
@@ -92,48 +100,74 @@ export default async function ModeracionPage({
       }),
     ]);
 
+  const counts = {
+    usuarios: users.length,
+    reportes: openReports.length,
+    pendientes: pending.length,
+  };
+
   return (
-    <>
-      <div className="px-4 pt-5">
+    <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+      <aside className="shrink-0 border-b border-line px-4 pt-5 pb-3 md:flex md:w-56 md:flex-col md:border-b-0 md:border-r md:px-4 md:py-6 lg:w-64">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-brand-ink" />
           <h1 className="font-serif text-2xl font-semibold">Panel admin</h1>
         </div>
-        <div className="mt-4 flex gap-1 overflow-x-auto">
-          {TABS.map((t) => (
-            <Link
-              key={t.id}
-              href={`/moderacion?tab=${t.id}`}
-              prefetch
-              className={cn(
-                "relative shrink-0 rounded-full px-3 py-1.5 text-[13px] font-medium",
-                tab === t.id ? "bg-brand text-white" : "bg-card text-carbon ring-1 ring-line",
-              )}
-            >
-              {t.label}
-              {t.id === "usuarios" && (
-                <span className="ml-1 rounded-full bg-mist px-1.5 text-[10px] text-carbon">
-                  {users.length}
-                </span>
-              )}
-              {t.id === "reportes" && openReports.length > 0 && (
-                <span className="ml-1 rounded-full bg-coral px-1.5 text-[10px] text-white">
-                  {openReports.length}
-                </span>
-              )}
-              {t.id === "pendientes" && pending.length > 0 && (
-                <span className="ml-1 rounded-full bg-gold px-1.5 text-[10px] text-carbon">
-                  {pending.length}
-                </span>
-              )}
-            </Link>
-          ))}
-        </div>
-      </div>
+        <nav className="mt-4 flex gap-1 overflow-x-auto md:mt-6 md:flex-col md:gap-0.5 md:overflow-visible">
+          {TABS.map((t) => {
+            const active = tab === t.id;
+            const count =
+              t.id === "usuarios"
+                ? counts.usuarios
+                : t.id === "reportes"
+                  ? counts.reportes
+                  : t.id === "pendientes"
+                    ? counts.pendientes
+                    : null;
+            const showCount =
+              count !== null && (t.id === "usuarios" || count > 0);
 
-      <div className="px-4 py-4 pb-8">
+            return (
+              <Link
+                key={t.id}
+                href={`/moderacion?tab=${t.id}`}
+                prefetch
+                className={cn(
+                  "relative flex shrink-0 items-center gap-1 font-medium",
+                  "rounded-full px-3 py-1.5 text-[13px]",
+                  "md:w-full md:rounded-xl md:px-3 md:py-2.5 md:text-left",
+                  active
+                    ? "bg-brand text-white"
+                    : "bg-card text-carbon ring-1 ring-line md:bg-transparent md:ring-0 md:hover:bg-mist",
+                )}
+              >
+                {t.label}
+                {showCount && (
+                  <span
+                    className={cn(
+                      "ml-1 rounded-full px-1.5 text-[10px] md:ml-auto",
+                      t.id === "reportes"
+                        ? "bg-coral text-white"
+                        : t.id === "pendientes"
+                          ? "bg-gold text-carbon"
+                          : active
+                            ? "bg-white/20 text-white"
+                            : "bg-mist text-carbon",
+                    )}
+                  >
+                    {count}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
+
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-[1400px] px-4 py-4 pb-8 md:px-6 md:py-6 lg:px-8">
         {tab === "usuarios" && (
-          <div className="flex flex-col gap-2.5">
+          <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {users.length === 0 && <Empty text="Todavía no hay cuentas." />}
             {users.map((u) => (
               <article
@@ -182,7 +216,7 @@ export default async function ModeracionPage({
         )}
 
         {tab === "reportes" && (
-          <div className="flex flex-col gap-2.5">
+          <div className="grid gap-2.5 md:grid-cols-2">
             {openReports.length === 0 && (
               <Empty text="No hay reportes abiertos. Cuando un vecino toque Reportar publicación, aparece acá." />
             )}
@@ -246,7 +280,7 @@ export default async function ModeracionPage({
         )}
 
         {tab === "pendientes" && (
-          <div className="flex flex-col gap-2.5">
+          <div className="grid gap-2.5 md:grid-cols-2">
             {pending.length === 0 && <Empty text="No hay publicaciones pendientes." />}
             {pending.map((p) => (
               <article
@@ -261,7 +295,7 @@ export default async function ModeracionPage({
                       {timeAgo(p.createdAt)}
                     </p>
                   </div>
-                  <StatusBadge status={p.status} />
+                  <StatusBadge status={listingStatus(p)} />
                 </div>
                 <p className="mt-2 line-clamp-2 text-sm text-carbon/70">{p.description}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -294,9 +328,9 @@ export default async function ModeracionPage({
         )}
 
         {tab === "publicaciones" && (
-          <div className="flex flex-col gap-2.5">
+          <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {autor && (
-              <p className="text-xs text-carbon/55">
+              <p className="text-xs text-carbon/55 md:col-span-full">
                 Filtrado por quien las cargó.{" "}
                 <Link href="/moderacion?tab=publicaciones" className="font-semibold text-brand-ink">
                   Ver todas
@@ -318,7 +352,7 @@ export default async function ModeracionPage({
                       {timeAgo(p.createdAt)}
                     </p>
                   </div>
-                  <StatusBadge status={p.status} />
+                  <StatusBadge status={listingStatus(p)} />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link
@@ -352,7 +386,7 @@ export default async function ModeracionPage({
         )}
 
         {tab === "duplicados" && (
-          <div className="flex flex-col gap-3">
+          <div className="grid gap-3 md:grid-cols-2">
             {duplicates.length === 0 && <Empty text="No hay posibles duplicados." />}
             {duplicates.map((p) => (
               <article
@@ -361,7 +395,7 @@ export default async function ModeracionPage({
               >
                 <div className="flex justify-between">
                   <p className="font-semibold">{p.name}</p>
-                  <StatusBadge status={p.status} />
+                  <StatusBadge status={listingStatus(p)} />
                 </div>
                 <p className="text-xs text-carbon/50">{p.phone}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -379,7 +413,7 @@ export default async function ModeracionPage({
         )}
 
         {tab === "historial" && (
-          <div className="flex flex-col gap-2">
+          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {events.length === 0 && <Empty text="Todavía no hay actividad." />}
             {events.map((e) => (
               <div
@@ -397,7 +431,7 @@ export default async function ModeracionPage({
         )}
 
         {tab === "categorias" && (
-          <div className="flex flex-col gap-2">
+          <div className="grid gap-2 md:grid-cols-2">
             {categories.map((c) => (
               <form
                 key={c.id}
@@ -423,14 +457,15 @@ export default async function ModeracionPage({
             ))}
           </div>
         )}
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
 function Empty({ text }: { text: string }) {
   return (
-    <p className="rounded-2xl bg-card px-4 py-6 text-center text-sm text-carbon/55 ring-1 ring-line">
+    <p className="rounded-2xl bg-card px-4 py-6 text-center text-sm text-carbon/55 ring-1 ring-line md:col-span-full">
       {text}
     </p>
   );

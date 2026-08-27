@@ -22,6 +22,7 @@ export default async function EditarPrestadorPage({
   ]);
   if (!provider) notFound();
   if (!canEditProvider(session.user, provider)) notFound();
+  if (provider.deletedAt) redirect(`/prestadores/${id}`);
 
   return (
     <EditProviderForm

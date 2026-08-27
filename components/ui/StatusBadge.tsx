@@ -8,6 +8,8 @@ const STYLES: Record<string, string> = {
   hidden: "bg-mist text-carbon/70",
   outdated: "bg-mist text-carbon/70",
   duplicate: "bg-mist text-carbon/70",
+  paused: "bg-mist text-carbon/70",
+  deleted: "bg-[#FFE8E7] text-coral",
 };
 
 const LABELS: Record<string, string> = {
@@ -18,6 +20,8 @@ const LABELS: Record<string, string> = {
   hidden: "Oculto",
   outdated: "Desactualizado",
   duplicate: "Duplicado",
+  paused: "Desactivada",
+  deleted: "Borrada",
 };
 
 export function StatusBadge({ status }: { status: string }) {

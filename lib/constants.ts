@@ -54,5 +54,6 @@ export const CATEGORY_SEED = [
   { slug: "seguridad", name: "Seguridad", icon: "shield", isUrgency: true, sortOrder: 19 },
   { slug: "service-electro", name: "Service Electro", icon: "refrigerator", isUrgency: false, sortOrder: 20 },
   { slug: "transporte", name: "Transporte", icon: "car", isUrgency: false, sortOrder: 21 },
-  { slug: "veterinaria", name: "Veterinaria", icon: "heart-pulse", isUrgency: true, sortOrder: 22 },
+  { slug: "verduleria", name: "Verdulería", icon: "carrot", isUrgency: false, sortOrder: 22 },
+  { slug: "veterinaria", name: "Veterinaria", icon: "heart-pulse", isUrgency: true, sortOrder: 23 },
 ] as const;

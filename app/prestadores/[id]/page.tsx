@@ -10,14 +10,21 @@ import {
 import { auth } from "@/auth";
 import { Avatar } from "@/components/ui/Avatar";
 import { RatingBadge } from "@/components/ui/RatingBadge";
-import { getProviderById, isFavorite, isPublicProviderStatus } from "@/lib/queries";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ListingActions } from "@/components/providers/ListingActions";
+import { SubmitButton } from "@/components/ui/SubmitButton";
+import {
+  getProviderById,
+  isFavorite,
+  isListedProvider,
+  isPublicProviderStatus,
+  listingStatus,
+} from "@/lib/queries";
 import { telLink, whatsappLink } from "@/lib/phone";
 import { tagLabel, timeAgo } from "@/lib/utils";
 import { toggleFavoriteAction } from "@/app/actions/social";
 import { setProviderStatus } from "@/app/actions/moderation";
 import { canEditProvider } from "@/lib/permissions";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export default async function ProviderPage({
   params,
@@ -37,7 +44,7 @@ export default async function ProviderPage({
   const firstName = provider.name.split(" ")[0];
   const isMod = session?.user?.role === "moderator";
   const canEdit = canEditProvider(session?.user, provider);
-  const visible = isPublicProviderStatus(provider.status) || isMod || canEdit;
+  const visible = isListedProvider(provider) || isMod || canEdit;
 
   if (!visible) notFound();
 
@@ -78,6 +85,16 @@ export default async function ProviderPage({
             Guardamos los cambios.
           </p>
         )}
+        {canEdit && provider.deletedAt && (
+          <p className="mx-4 mt-3 rounded-xl bg-coral/15 px-3 py-2 text-sm text-coral">
+            Esta ficha está borrada. Los vecinos no la ven. Podés restaurarla cuando quieras.
+          </p>
+        )}
+        {canEdit && provider.pausedAt && !provider.deletedAt && (
+          <p className="mx-4 mt-3 rounded-xl bg-mist px-3 py-2 text-sm text-carbon/75">
+            Esta ficha está desactivada. No aparece en el barrio hasta que la actives.
+          </p>
+        )}
 
         <div className="mt-4 flex flex-col items-center px-4 text-center">
           <div className="relative">
@@ -116,13 +133,13 @@ export default async function ProviderPage({
             </span>
           )}
           <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-            {isMod && <StatusBadge status={provider.status} />}
+            {(isMod || canEdit) && <StatusBadge status={listingStatus(provider)} />}
             {provider.source === "neighbor" && provider.stats.count > 0 && (
               <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold text-brand-ink">
                 Recomendado por vecinos
               </span>
             )}
-            {canEdit && (
+            {canEdit && !provider.deletedAt && (
               <Link
                 href={`/prestadores/${id}/editar`}
                 className="rounded-full bg-mist px-2.5 py-1 text-[11px] font-semibold text-brand-ink"
@@ -131,6 +148,16 @@ export default async function ProviderPage({
               </Link>
             )}
           </div>
+          {canEdit && (
+            <div className="mt-3 flex justify-center">
+              <ListingActions
+                providerId={id}
+                paused={Boolean(provider.pausedAt)}
+                deleted={Boolean(provider.deletedAt)}
+                canToggle={isPublicProviderStatus(provider.status)}
+              />
+            </div>
+          )}
         </div>
 
         <div className="mx-4 mt-6 grid grid-cols-3 gap-2">
@@ -173,7 +200,7 @@ export default async function ProviderPage({
         <section className="mx-4 mt-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-semibold text-carbon">Lo que dicen los vecinos</h2>
-            {session?.user && (
+            {session?.user && isListedProvider(provider) && (
               <Link
                 href={`/prestadores/${id}/recomendar`}
                 className="text-xs font-semibold text-brand-ink"
@@ -207,7 +234,7 @@ export default async function ProviderPage({
               ))}
             </div>
           )}
-          {session?.user && (
+          {session?.user && isListedProvider(provider) && (
             <Link
               href={`/prestadores/${id}/comentar`}
               className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-brand-ink"
@@ -231,19 +258,21 @@ export default async function ProviderPage({
                   </SubmitButton>
                 </form>
               )}
-              {isPublicProviderStatus(provider.status) && (
+              {isPublicProviderStatus(provider.status) && !provider.deletedAt && (
                 <form action={setProviderStatus.bind(null, id, "hidden")}>
                   <SubmitButton className="rounded-full bg-coral px-3 py-1.5 text-xs font-semibold text-white">
                     Dar de baja
                   </SubmitButton>
                 </form>
               )}
+              {!provider.deletedAt && (
               <Link
                 href={`/prestadores/${id}/editar`}
                 className="rounded-full bg-mist px-3 py-1.5 text-xs font-semibold"
               >
                 Editar
               </Link>
+              )}
               <Link
                 href="/moderacion?tab=reportes"
                 className="rounded-full bg-mist px-3 py-1.5 text-xs font-semibold"
@@ -254,6 +283,7 @@ export default async function ProviderPage({
           </div>
         )}
 
+        {isListedProvider(provider) && (
         <div className="mx-4 mt-5 mb-4">
           {session?.user ? (
             <Link
@@ -271,6 +301,7 @@ export default async function ProviderPage({
             </Link>
           )}
         </div>
+        )}
         </div>
 
         <div className="sticky bottom-0 z-10 bg-paper px-4 py-3">
