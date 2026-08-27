@@ -11,12 +11,23 @@ export function normalizePhone(input: string) {
     n = `54${n}`;
   }
 
-  // Argentina mobiles often need 9 after country code
+  // Argentina mobiles need 9 after country code: +54 9 ...
   if (n.startsWith("54") && !n.startsWith("549") && n.length >= 12) {
     n = `549${n.slice(2)}`;
   }
 
   return n;
+}
+
+/** Celular argentino: +549 + 10 dígitos (ej. 54911XXXXXXXX). */
+export function isArgentineMobile(input: string) {
+  return /^549\d{10}$/.test(normalizePhone(input));
+}
+
+export function parseUserPhone(input: string) {
+  const phone = normalizePhone(input);
+  if (!isArgentineMobile(phone)) return null;
+  return phone;
 }
 
 export function formatPhone(phone: string) {

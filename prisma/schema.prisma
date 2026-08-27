@@ -60,7 +60,7 @@ model User {
   id                  String    @id @default(cuid())
   name                String
   displayName         String
-  email               String    @unique
+  phone               String    @unique
   passwordHash        String
   role                Role      @default(neighbor)
   communityVerifiedAt DateTime?
@@ -92,10 +92,10 @@ model Category {
 model Provider {
   id                 String         @id @default(cuid())
   name               String
-  description        String
+  description        String         @default("")
   phone              String         @unique
   whatsapp           String?
-  zone               String
+  zone               String         @default("")
   license            String?
   status             ProviderStatus @default(pending)
   source             ProviderSource @default(neighbor)

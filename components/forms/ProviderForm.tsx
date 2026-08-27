@@ -1,10 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import Link from "next/link";
 import { createProviderAction } from "@/app/actions/providers";
-import { AppShell, ScreenHeader } from "@/components/layout/AppShell";
-import { ChevronLeft } from "lucide-react";
+import { AppShell } from "@/components/layout/AppShell";
 
 type Cat = { id: string; name: string };
 
@@ -18,17 +16,12 @@ export function ProviderForm({
   const [state, action, pending] = useActionState(createProviderAction, null);
 
   return (
-    <AppShell hideNav>
-      <ScreenHeader
-        left={
-          <Link href="/" className="flex h-10 w-10 items-center justify-center rounded-full bg-mist">
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
-        }
-        title={source === "self" ? "Publicar servicio" : "Cargar prestador"}
-      />
-      <form action={action} className="flex flex-1 flex-col gap-3 px-4 pb-8">
+    <AppShell backHref="/">
+      <form action={action} className="flex flex-1 flex-col gap-3 px-4 pb-8 pt-4">
         <input type="hidden" name="source" value={source} />
+        <h1 className="font-serif text-2xl font-semibold">
+          {source === "self" ? "Publicar servicio" : "Cargar prestador"}
+        </h1>
         <p className="text-sm text-carbon/65">
           {source === "self"
             ? "Tu ficha queda pendiente hasta que un moderador la apruebe."
@@ -36,15 +29,13 @@ export function ProviderForm({
         </p>
         <Field name="name" label="Nombre" placeholder="Daniel Gasista" required />
         <Field name="phone" label="Teléfono / WhatsApp" placeholder="11 5555-1234" required />
-        <Field name="zone" label="Zona" placeholder="a 3 cuadras / Don Mateo" required />
-        <Field name="license" label="Matrícula o habilitación (opcional)" placeholder="Mat. 12345" />
         <label className="text-sm font-medium">
-          Rubros
+          Rubro
           <div className="mt-2 flex flex-wrap gap-2">
             {categories.map((c) => (
               <label
                 key={c.id}
-                className="cursor-pointer rounded-full bg-white px-3 py-1.5 text-sm ring-1 ring-black/[0.08] has-[:checked]:bg-brand has-[:checked]:text-white has-[:checked]:ring-0"
+                className="rounded-full bg-white px-3 py-1.5 text-sm ring-1 ring-black/[0.08] has-[:checked]:bg-brand has-[:checked]:text-white has-[:checked]:ring-0"
               >
                 <input type="checkbox" name="categoryIds" value={c.id} className="sr-only" />
                 {c.name}
@@ -52,12 +43,16 @@ export function ProviderForm({
             ))}
           </div>
         </label>
+        <Field name="zone" label="Zona (opcional)" placeholder="a 3 cuadras / Don Mateo" />
+        <Field
+          name="license"
+          label="Matrícula o habilitación (opcional)"
+          placeholder="Mat. 12345"
+        />
         <label className="text-sm font-medium">
-          Descripción breve
+          Descripción breve (opcional)
           <textarea
             name="description"
-            required
-            minLength={8}
             rows={4}
             placeholder="Gasista matriculado, atiende pérdidas y calefones."
             className="mt-1 w-full rounded-2xl bg-mist px-3 py-3 text-sm outline-none"

@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { AppShell, ScreenHeader } from "@/components/layout/AppShell";
+import { AppShell } from "@/components/layout/AppShell";
 import { ReplyForm } from "@/components/forms/ReplyForm";
 import { closeRequestAction } from "@/app/actions/requests";
 import { timeAgo } from "@/lib/utils";
@@ -44,19 +43,9 @@ export default async function SolicitudDetailPage({
     request.status === "open";
 
   return (
-    <AppShell>
-      <ScreenHeader
-        left={
-          <Link
-            href="/solicitudes"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-mist"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
-        }
-        title="Pedido"
-      />
-      <div className="px-4 pb-8">
+    <AppShell backHref="/">
+      <div className="px-4 pb-8 pt-4">
+        <h1 className="mb-3 font-serif text-2xl font-semibold">Pedido</h1>
         <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-black/[0.04]">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold">{request.user.displayName}</p>

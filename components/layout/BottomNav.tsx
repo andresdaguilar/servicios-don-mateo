@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Plus, MessageCircle, UserRound } from "lucide-react";
+import { Home, Search, Plus, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/", label: "Inicio", icon: Home, exact: true },
   { href: "/buscar", label: "Buscar", icon: Search },
   { href: "/prestadores/nuevo", label: "Publicar", icon: Plus, fab: true },
-  { href: "/solicitudes", label: "Mensajes", icon: MessageCircle },
   { href: "/cuenta", label: "Perfil", icon: UserRound },
 ] as const;
 
@@ -17,8 +16,8 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky bottom-0 z-30 border-t border-black/[0.06] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-      <ul className="grid grid-cols-5 px-1 pt-1">
+    <nav className="z-30 shrink-0 border-t border-black/[0.06] bg-white pb-[env(safe-area-inset-bottom)]">
+      <ul className="grid grid-cols-4 px-1 pt-1">
         {ITEMS.map((item) => {
           const active =
             "exact" in item && item.exact
@@ -28,7 +27,7 @@ export function BottomNav() {
 
           if ("fab" in item && item.fab) {
             return (
-              <li key={item.href} className="-mt-6 flex justify-center">
+              <li key={item.href} className="-mt-5 flex justify-center">
                 <Link
                   href={item.href}
                   className="flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-[0_8px_20px_rgba(30,94,58,0.35)]"

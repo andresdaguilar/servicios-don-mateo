@@ -17,7 +17,7 @@ export default async function SolicitudesPage() {
   });
 
   return (
-    <AppShell>
+    <AppShell backHref="/">
       <div className="flex items-center justify-between px-4 pt-5">
         <h1 className="font-serif text-2xl font-semibold">Mensajes</h1>
         {session?.user && (

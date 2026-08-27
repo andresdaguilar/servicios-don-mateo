@@ -13,9 +13,9 @@ import type { ActionState } from "@/app/actions/auth";
 
 const providerSchema = z.object({
   name: z.string().min(2, "Ingresá el nombre").max(80),
-  description: z.string().min(8, "Contá un poco más").max(600),
+  description: z.string().max(600).optional(),
   phone: z.string().min(8, "Ingresá un teléfono"),
-  zone: z.string().min(2, "Ingresá la zona").max(80),
+  zone: z.string().max(80).optional(),
   license: z.string().max(80).optional(),
   categoryIds: z.array(z.string()).min(1, "Elegí al menos un rubro"),
   source: z.enum(["neighbor", "self"]),
@@ -45,9 +45,9 @@ export async function createProviderAction(
   const categoryIds = formData.getAll("categoryIds").map(String).filter(Boolean);
   const parsed = providerSchema.safeParse({
     name: formData.get("name"),
-    description: formData.get("description"),
+    description: String(formData.get("description") ?? "") || undefined,
     phone: formData.get("phone"),
-    zone: formData.get("zone"),
+    zone: String(formData.get("zone") ?? "") || undefined,
     license: String(formData.get("license") ?? "") || undefined,
     categoryIds,
     source: formData.get("source") === "self" ? "self" : "neighbor",
@@ -75,10 +75,10 @@ export async function createProviderAction(
   const provider = await prisma.provider.create({
     data: {
       name: parsed.data.name.trim(),
-      description: parsed.data.description.trim(),
+      description: parsed.data.description?.trim() ?? "",
       phone,
       whatsapp: phone,
-      zone: parsed.data.zone.trim(),
+      zone: parsed.data.zone?.trim() ?? "",
       license: parsed.data.license?.trim() || null,
       status,
       source: selfPublish ? ProviderSource.self : ProviderSource.neighbor,
@@ -125,8 +125,8 @@ export async function updateProviderAction(providerId: string, formData: FormDat
   const license = String(formData.get("license") ?? "").trim();
   const phoneRaw = String(formData.get("phone") ?? "").trim();
 
-  if (name.length < 2 || description.length < 8) {
-    return { error: "Completá nombre y descripción." };
+  if (name.length < 2) {
+    return { error: "Completá el nombre." };
   }
 
   const phone = phoneRaw ? normalizePhone(phoneRaw) : provider.phone;

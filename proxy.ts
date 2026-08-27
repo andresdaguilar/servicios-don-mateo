@@ -5,7 +5,6 @@ const WRITE_PREFIXES = [
   "/prestadores/nuevo",
   "/recomendar",
   "/favoritos",
-  "/solicitudes/nueva",
   "/cuenta",
 ];
 
@@ -40,7 +39,6 @@ export const config = {
     "/prestadores/nuevo",
     "/recomendar/:path*",
     "/favoritos",
-    "/solicitudes/nueva",
     "/cuenta/:path*",
   ],
 };

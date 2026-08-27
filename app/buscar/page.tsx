@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { auth } from "@/auth";
-import { AppShell, ScreenHeader } from "@/components/layout/AppShell";
+import { AppShell } from "@/components/layout/AppShell";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { ProviderCard } from "@/components/ui/ProviderCard";
 import { getCategories, searchProviders } from "@/lib/queries";
@@ -20,16 +19,8 @@ export default async function BuscarPage({
   await auth();
 
   return (
-    <AppShell>
-      <ScreenHeader
-        left={
-          <Link href="/" className="flex h-10 w-10 items-center justify-center rounded-full bg-mist">
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
-        }
-        title="Buscar"
-      />
-      <div className="px-4">
+    <AppShell backHref="/">
+      <div className="px-4 pt-4">
         <SearchBar defaultValue={q ?? ""} showFilters />
         <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
           <Chip href="/buscar" active={!rubro}>
@@ -50,13 +41,13 @@ export default async function BuscarPage({
           <div className="rounded-2xl bg-white px-4 py-8 text-center ring-1 ring-black/[0.04]">
             <p className="font-medium text-carbon">No encontramos eso todavía.</p>
             <p className="mt-1 text-sm text-carbon/60">
-              Pedile una recomendación a los vecinos.
+              Podés cargar un prestador si lo conocés.
             </p>
             <Link
-              href="/solicitudes/nueva"
+              href="/prestadores/nuevo?origen=vecino"
               className="mt-4 inline-flex rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white"
             >
-              Pedir recomendación
+              Cargar prestador
             </Link>
           </div>
         ) : (

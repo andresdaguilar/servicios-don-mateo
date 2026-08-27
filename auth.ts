@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { parseUserPhone } from "@/lib/phone";
 import type { AppRole } from "@/types/next-auth";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -13,17 +14,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        email: { type: "email" },
+        phone: { type: "tel" },
         password: { type: "password" },
       },
       async authorize(credentials) {
-        const email = String(credentials?.email ?? "")
-          .trim()
-          .toLowerCase();
+        const phone = parseUserPhone(String(credentials?.phone ?? ""));
         const password = String(credentials?.password ?? "");
-        if (!email || !password) return null;
+        if (!phone || !password) return null;
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({ where: { phone } });
         if (!user) return null;
 
         const ok = await compare(password, user.passwordHash);
@@ -31,7 +30,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         return {
           id: user.id,
-          email: user.email,
           name: user.name,
           displayName: user.displayName,
           role: user.role as AppRole,

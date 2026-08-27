@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { ChevronLeft, Phone } from "lucide-react";
-import { AppShell, ScreenHeader } from "@/components/layout/AppShell";
+import { Phone } from "lucide-react";
+import { AppShell } from "@/components/layout/AppShell";
 import { ProviderCard } from "@/components/ui/ProviderCard";
 import { getUrgencyContacts, searchProviders } from "@/lib/queries";
 import { telLink, whatsappLink } from "@/lib/phone";
@@ -12,16 +12,9 @@ export default async function UrgenciasPage() {
   ]);
 
   return (
-    <AppShell>
-      <ScreenHeader
-        left={
-          <Link href="/" className="flex h-10 w-10 items-center justify-center rounded-full bg-mist">
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
-        }
-        title="Urgencias"
-      />
-      <div className="px-4 pb-8">
+    <AppShell backHref="/">
+      <div className="px-4 pb-8 pt-4">
+        <h1 className="font-serif text-2xl font-semibold">Urgencias</h1>
         <p className="text-sm text-carbon/65">
           Lo que suele hacer falta rápido. También están administración y emergencias del barrio.
         </p>

@@ -34,7 +34,6 @@ export default async function CuentaPage() {
           <Row href="/favoritos" label="Favoritos" />
           <Row href="/prestadores/nuevo?origen=vecino" label="Recomendar un prestador" />
           <Row href="/prestadores/nuevo" label="Publicar mi servicio" />
-          <Row href="/solicitudes/nueva" label="Pedir recomendación" />
           {owned && <Row href={`/prestadores/${owned.id}`} label={`Mi ficha · ${owned.name}`} />}
           {session.user.role === "moderator" && (
             <Row href="/moderacion" label="Panel de confianza" />

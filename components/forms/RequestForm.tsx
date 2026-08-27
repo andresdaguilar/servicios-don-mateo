@@ -1,10 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { createRequestAction } from "@/app/actions/requests";
-import { AppShell, ScreenHeader } from "@/components/layout/AppShell";
+import { AppShell } from "@/components/layout/AppShell";
 
 export function RequestForm({
   categories,
@@ -14,19 +12,9 @@ export function RequestForm({
   const [state, action, pending] = useActionState(createRequestAction, null);
 
   return (
-    <AppShell hideNav>
-      <ScreenHeader
-        left={
-          <Link
-            href="/solicitudes"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-mist"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
-        }
-        title="Pedir recomendación"
-      />
-      <form action={action} className="flex flex-1 flex-col gap-3 px-4 pb-8">
+    <AppShell backHref="/">
+      <form action={action} className="flex flex-1 flex-col gap-3 px-4 pb-8 pt-4">
+        <h1 className="font-serif text-2xl font-semibold">Pedir recomendación</h1>
         <textarea
           name="body"
           required

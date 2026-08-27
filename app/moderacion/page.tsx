@@ -64,7 +64,7 @@ export default async function ModeracionPage({
     ]);
 
   return (
-    <AppShell>
+    <AppShell backHref="/">
       <div className="px-4 pt-5">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-brand" />

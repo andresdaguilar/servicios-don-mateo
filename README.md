@@ -35,7 +35,7 @@ psql -d donmateo -c "ALTER USER donmateo WITH PASSWORD 'donmateo';"
 
 En producción usá [Neon](https://neon.tech): copiá el connection string pooled a `DATABASE_URL` y el directo a `DIRECT_URL`.
 
-3. Migrá y cargá datos de ejemplo:
+3. Creá las tablas y las categorías:
 
 ```bash
 npx prisma db push
@@ -50,15 +50,9 @@ npm run dev
 
 Abrí [http://localhost:3000](http://localhost:3000).
 
-### Cuentas de demo (contraseña `donmateo`)
+Registro cerrado: hace falta el código `DONMATEO2026` o el link del grupo, `/unirse/DONMATEO2026`.
 
-| Rol | Email |
-| --- | --- |
-| Vecina | `mariana@donmateo.ar` |
-| Moderador | `moderacion@donmateo.ar` |
-| Prestador | `daniel@donmateo.ar` |
-
-Código de comunidad para registrarse: `DONMATEO`
+El seed solo carga categorías. No hay usuarios ni prestadores de prueba.
 
 ## Producción (Neon + Vercel)
 
@@ -70,7 +64,7 @@ Código de comunidad para registrarse: `DONMATEO`
 - `AUTH_SECRET`
 - `AUTH_URL` (URL pública)
 - `COMMUNITY_ACCESS_CODE`
-- `ADMIN_EMAIL`
+- `ADMIN_PHONE`
 - `BLOB_READ_WRITE_TOKEN` (opcional, para fotos)
 
 3. Deploy. En el primer deploy corré `npx prisma db push` y `npx prisma db seed` contra Neon, o usá `prisma migrate deploy` cuando agregues migraciones.

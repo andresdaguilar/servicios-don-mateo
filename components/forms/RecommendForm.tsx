@@ -1,11 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { recommendAction } from "@/app/actions/social";
 import { TRUST_TAGS } from "@/lib/constants";
-import { AppShell, ScreenHeader } from "@/components/layout/AppShell";
+import { AppShell } from "@/components/layout/AppShell";
 
 export function RecommendForm({
   providerId,
@@ -17,19 +15,9 @@ export function RecommendForm({
   const [state, action, pending] = useActionState(recommendAction, null);
 
   return (
-    <AppShell hideNav>
-      <ScreenHeader
-        left={
-          <Link
-            href={`/prestadores/${providerId}`}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-mist"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
-        }
-        title="Recomendar"
-      />
-      <form action={action} className="flex flex-1 flex-col gap-4 px-4 pb-8">
+    <AppShell backHref={`/prestadores/${providerId}`}>
+      <form action={action} className="flex flex-1 flex-col gap-4 px-4 pb-8 pt-4">
+        <h1 className="font-serif text-2xl font-semibold">Recomendar</h1>
         <input type="hidden" name="providerId" value={providerId} />
         <p className="text-sm text-carbon/70">
           Contá tu experiencia con <span className="font-semibold text-carbon">{providerName}</span>.

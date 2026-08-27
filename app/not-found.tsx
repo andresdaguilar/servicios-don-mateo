@@ -3,7 +3,7 @@ import { AppShell } from "@/components/layout/AppShell";
 
 export default function NotFound() {
   return (
-    <AppShell>
+    <AppShell backHref="/">
       <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
         <h1 className="font-serif text-2xl font-semibold">No está esa ficha</h1>
         <p className="mt-2 text-sm text-carbon/65">

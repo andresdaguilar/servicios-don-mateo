@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ChevronLeft,
   Heart,
   MapPin,
   Phone,
@@ -58,28 +57,27 @@ export default async function ProviderPage({
   ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return (
-    <AppShell>
-      <div className="relative flex-1 pb-28">
-        <header className="flex items-center justify-between px-4 pt-4">
-          <Link href="/buscar" className="flex h-10 w-10 items-center justify-center rounded-full bg-mist">
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
-          {session?.user && (
-            <form action={toggleFavoriteAction.bind(null, id)}>
-              <button
-                type="submit"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-mist"
-                aria-label="Favorito"
-              >
-                <Heart
-                  className={fav ? "h-5 w-5 fill-coral text-coral" : "h-5 w-5 text-carbon"}
-                  strokeWidth={1.75}
-                />
-              </button>
-            </form>
-          )}
-        </header>
-
+    <AppShell
+      backHref="/buscar"
+      right={
+        session?.user ? (
+          <form action={toggleFavoriteAction.bind(null, id)}>
+            <button
+              type="submit"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-mist"
+              aria-label="Favorito"
+            >
+              <Heart
+                className={fav ? "h-5 w-5 fill-coral text-coral" : "h-5 w-5 text-carbon"}
+                strokeWidth={1.75}
+              />
+            </button>
+          </form>
+        ) : undefined
+      }
+    >
+      <div className="flex flex-1 flex-col">
+        <div className="flex-1 pb-4">
         {aviso === "telefono" && (
           <p className="mx-4 mt-3 rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
             Ese teléfono ya estaba cargado. Podés sumar tu recomendación acá.
@@ -91,10 +89,12 @@ export default async function ProviderPage({
           <h1 className="mt-3 font-serif text-2xl font-semibold text-carbon">{provider.name}</h1>
           <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
             <RatingBadge value={provider.stats.avg} count={provider.stats.count} />
-            <span className="inline-flex items-center gap-1 text-xs text-carbon/55">
-              <MapPin className="h-3.5 w-3.5" />
-              {provider.zone}
-            </span>
+            {provider.zone ? (
+              <span className="inline-flex items-center gap-1 text-xs text-carbon/55">
+                <MapPin className="h-3.5 w-3.5" />
+                {provider.zone}
+              </span>
+            ) : null}
           </div>
           {provider.stats.topTag && (
             <span className="mt-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold text-brand">
@@ -126,7 +126,11 @@ export default async function ProviderPage({
 
         <section className="mx-4 mt-6 rounded-2xl bg-white px-4 py-4 ring-1 ring-black/[0.04]">
           <h2 className="font-semibold text-carbon">Sobre {firstName}</h2>
-          <p className="mt-2 text-sm leading-relaxed text-carbon/75">{provider.description}</p>
+          {provider.description ? (
+            <p className="mt-2 text-sm leading-relaxed text-carbon/75">{provider.description}</p>
+          ) : (
+            <p className="mt-2 text-sm text-carbon/50">Sin descripción todavía.</p>
+          )}
           <ul className="mt-3 space-y-1.5 text-sm text-carbon/80">
             {provider.license && (
               <li className="flex items-center gap-2">
@@ -203,9 +207,9 @@ export default async function ProviderPage({
             </Link>
           </div>
         )}
-      </div>
+        </div>
 
-      <div className="fixed bottom-[72px] left-1/2 z-20 w-full max-w-[430px] -translate-x-1/2 bg-gradient-to-t from-paper via-paper to-transparent px-4 pb-3 pt-6">
+        <div className="sticky bottom-0 z-10 bg-paper px-4 py-3">
         <div className="flex gap-2">
           <a
             href={whatsappLink(provider.whatsapp || provider.phone)}
@@ -221,6 +225,7 @@ export default async function ProviderPage({
             <Phone className="h-5 w-5" />
             Llamar
           </a>
+        </div>
         </div>
       </div>
     </AppShell>

@@ -11,7 +11,7 @@ export default async function FavoritosPage() {
   const favorites = await getFavorites(session.user.id);
 
   return (
-    <AppShell>
+    <AppShell backHref="/">
       <h1 className="px-4 pt-5 font-serif text-2xl font-semibold">Favoritos</h1>
       <div className="mt-4 flex flex-col gap-2.5 px-4 pb-8">
         {favorites.length === 0 ? (

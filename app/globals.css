@@ -33,3 +33,18 @@ body {
 * {
   -webkit-tap-highlight-color: transparent;
 }
+
+a,
+button,
+label,
+[type="button"],
+[type="submit"],
+[role="button"],
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+[type="submit"]:disabled {
+  cursor: not-allowed;
+}

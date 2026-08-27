@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Bell, Heart, ShieldCheck, Users, House } from "lucide-react";
+import { Heart, House, Shield, ShieldCheck, Users } from "lucide-react";
 import { auth } from "@/auth";
-import { Wordmark } from "@/components/brand/Logo";
 import { AppShell } from "@/components/layout/AppShell";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { ProviderCard } from "@/components/ui/ProviderCard";
@@ -20,18 +19,19 @@ export default async function HomePage() {
     : "Hola, vecino";
 
   return (
-    <AppShell>
-      <header className="flex items-center justify-between px-4 pt-5">
-        <Wordmark />
-        <Link
-          href={session?.user?.role === "moderator" ? "/moderacion" : "/solicitudes"}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-mist text-carbon"
-          aria-label="Avisos"
-        >
-          <Bell className="h-5 w-5" strokeWidth={1.75} />
-        </Link>
-      </header>
-
+    <AppShell
+      right={
+        session?.user?.role === "moderator" ? (
+          <Link
+            href="/moderacion"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-mist text-brand"
+            aria-label="Panel de confianza"
+          >
+            <Shield className="h-5 w-5" strokeWidth={1.75} />
+          </Link>
+        ) : undefined
+      }
+    >
       <div className="px-4 pt-6">
         <h1 className="font-serif text-[28px] font-semibold leading-tight text-carbon">
           {hello} 👋
@@ -108,13 +108,13 @@ function EmptyHome() {
     <div className="rounded-2xl bg-white px-4 py-6 text-center ring-1 ring-black/[0.04]">
       <p className="text-sm font-medium text-carbon">Todavía no hay fichas publicadas.</p>
       <p className="mt-1 text-sm text-carbon/60">
-        Pedí una recomendación o cargá al primer prestador del barrio.
+        Cargá al primer prestador del barrio.
       </p>
       <Link
-        href="/solicitudes/nueva"
+        href="/prestadores/nuevo"
         className="mt-4 inline-flex rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white"
       >
-        Pedir recomendación
+        Publicar servicio
       </Link>
     </div>
   );

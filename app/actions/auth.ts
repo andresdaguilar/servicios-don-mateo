@@ -5,13 +5,15 @@ import { AuthError } from "next-auth";
 import { z } from "zod";
 import { auth, signIn, signOut } from "@/auth";
 import { prisma } from "@/lib/db";
+import { isValidInviteCode } from "@/lib/invite";
+import { parseUserPhone } from "@/lib/phone";
 import { toDisplayName } from "@/lib/utils";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Ingresá tu nombre").max(80),
-  email: z.string().email("Email inválido"),
+  phone: z.string().min(8, "Ingresá tu celular"),
   password: z.string().min(6, "Mínimo 6 caracteres"),
-  communityCode: z.string().min(1, "Ingresá el código del barrio"),
+  communityCode: z.string().min(1, "Ingresá el código de invitación"),
 });
 
 export type ActionState = { error?: string; ok?: boolean } | null;
@@ -22,7 +24,7 @@ export async function registerAction(
 ): Promise<ActionState> {
   const parsed = registerSchema.safeParse({
     name: formData.get("name"),
-    email: formData.get("email"),
+    phone: formData.get("phone"),
     password: formData.get("password"),
     communityCode: formData.get("communityCode"),
   });
@@ -30,32 +32,35 @@ export async function registerAction(
     return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
 
-  const expected = process.env.COMMUNITY_ACCESS_CODE ?? "DONMATEO";
-  if (parsed.data.communityCode.trim().toUpperCase() !== expected.toUpperCase()) {
-    return { error: "El código de comunidad no es válido." };
+  if (!isValidInviteCode(parsed.data.communityCode)) {
+    return { error: "El código o el link de invitación no es válido." };
   }
 
-  const email = parsed.data.email.trim().toLowerCase();
-  const exists = await prisma.user.findUnique({ where: { email } });
-  if (exists) return { error: "Ya hay una cuenta con ese email." };
+  const phone = parseUserPhone(parsed.data.phone);
+  if (!phone) {
+    return { error: "Usá un celular argentino, con prefijo +549." };
+  }
 
-  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
+  const exists = await prisma.user.findUnique({ where: { phone } });
+  if (exists) return { error: "Ya hay una cuenta con ese teléfono." };
+
+  const adminPhone = parseUserPhone(process.env.ADMIN_PHONE ?? "");
   const passwordHash = await hash(parsed.data.password, 10);
 
   await prisma.user.create({
     data: {
       name: parsed.data.name.trim(),
       displayName: toDisplayName(parsed.data.name),
-      email,
+      phone,
       passwordHash,
       communityVerifiedAt: new Date(),
-      role: adminEmail && email === adminEmail ? "moderator" : "neighbor",
+      role: adminPhone && phone === adminPhone ? "moderator" : "neighbor",
     },
   });
 
   try {
     await signIn("credentials", {
-      email,
+      phone,
       password: parsed.data.password,
       redirectTo: "/",
     });
@@ -73,21 +78,24 @@ export async function loginAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const phone = String(formData.get("phone") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const from = String(formData.get("from") ?? "/") || "/";
 
-  if (!email || !password) return { error: "Completá email y contraseña." };
+  if (!phone || !password) return { error: "Completá teléfono y contraseña." };
+  if (!parseUserPhone(phone)) {
+    return { error: "Usá un celular argentino, con prefijo +549." };
+  }
 
   try {
     await signIn("credentials", {
-      email,
+      phone,
       password,
       redirectTo: from.startsWith("/") ? from : "/",
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Email o contraseña incorrectos." };
+      return { error: "Teléfono o contraseña incorrectos." };
     }
     throw error;
   }

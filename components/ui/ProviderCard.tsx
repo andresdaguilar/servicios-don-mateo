@@ -32,10 +32,12 @@ export function ProviderCard({ provider }: { provider: ProviderCardModel }) {
             ? `${provider.stats.count} vecinos lo recomiendan`
             : "Todavía sin recomendaciones"}
         </p>
-        <p className="mt-0.5 flex items-center gap-1 text-[12px] text-carbon/50">
-          <MapPin className="h-3 w-3" />
-          {provider.zone}
-        </p>
+        {provider.zone ? (
+          <p className="mt-0.5 flex items-center gap-1 text-[12px] text-carbon/50">
+            <MapPin className="h-3 w-3" />
+            {provider.zone}
+          </p>
+        ) : null}
       </div>
       <ChevronRight className="h-4 w-4 shrink-0 text-carbon/30" />
     </Link>
