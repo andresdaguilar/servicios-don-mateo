@@ -67,8 +67,7 @@ export async function createProviderAction(
 
   const similar = await findSimilarProviders(parsed.data.name);
   const selfPublish = parsed.data.source === "self";
-  const status =
-    similar.length > 0 || selfPublish ? ProviderStatus.pending : ProviderStatus.approved;
+  const status = ProviderStatus.pending;
 
   const photos = await uploadPhotos(formData);
 
@@ -104,10 +103,8 @@ export async function createProviderAction(
 
   revalidatePath("/");
   revalidatePath("/buscar");
-  if (status === ProviderStatus.approved) {
-    redirect(`/prestadores/${provider.id}`);
-  }
-  redirect(`/prestadores/nuevo/gracias`);
+  revalidatePath("/moderacion");
+  redirect(`/prestadores/${provider.id}?aviso=publicada`);
 }
 
 export async function updateProviderAction(providerId: string, formData: FormData) {

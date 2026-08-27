@@ -36,8 +36,9 @@ export default async function CuentaPage() {
           <Row href="/prestadores/nuevo" label="Publicar mi servicio" />
           {owned && <Row href={`/prestadores/${owned.id}`} label={`Mi ficha · ${owned.name}`} />}
           {session.user.role === "moderator" && (
-            <Row href="/moderacion" label="Panel de confianza" />
+            <Row href="/moderacion" label="Moderar publicaciones" />
           )}
+          <Row href="/faq" label="Preguntas frecuentes" />
         </div>
 
         <form action={logoutAction} className="mt-6">

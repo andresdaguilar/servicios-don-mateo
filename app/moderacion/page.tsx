@@ -12,11 +12,13 @@ import {
   updateCategoryAction,
 } from "@/app/actions/moderation";
 import { REPORT_REASONS } from "@/lib/constants";
+import { PUBLIC_PROVIDER_STATUSES } from "@/lib/queries";
 import { cn, timeAgo } from "@/lib/utils";
 
 const TABS = [
   { id: "reportes", label: "Reportes" },
   { id: "pendientes", label: "Pendientes" },
+  { id: "publicaciones", label: "Publicaciones" },
   { id: "duplicados", label: "Duplicados" },
   { id: "historial", label: "Historial" },
   { id: "categorias", label: "Categorías" },
@@ -30,7 +32,7 @@ export default async function ModeracionPage({
   const { tab: tabRaw } = await searchParams;
   const tab = TABS.some((t) => t.id === tabRaw) ? tabRaw : "reportes";
 
-  const [openReports, pending, duplicates, events, categories, allProviders] =
+  const [openReports, pending, listed, duplicates, events, categories, allProviders] =
     await Promise.all([
       prisma.report.findMany({
         where: { status: "open" },
@@ -42,6 +44,10 @@ export default async function ModeracionPage({
       }),
       prisma.provider.findMany({
         where: { status: { in: [ProviderStatus.pending, ProviderStatus.reported] } },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.provider.findMany({
+        where: { status: { in: PUBLIC_PROVIDER_STATUSES } },
         orderBy: { createdAt: "desc" },
       }),
       prisma.provider.findMany({
@@ -86,6 +92,11 @@ export default async function ModeracionPage({
                   {openReports.length}
                 </span>
               )}
+              {t.id === "pendientes" && pending.length > 0 && (
+                <span className="ml-1 rounded-full bg-gold px-1.5 text-[10px] text-carbon">
+                  {pending.length}
+                </span>
+              )}
             </Link>
           ))}
         </div>
@@ -94,7 +105,9 @@ export default async function ModeracionPage({
       <div className="px-4 py-4 pb-8">
         {tab === "reportes" && (
           <div className="flex flex-col gap-2.5">
-            {openReports.length === 0 && <Empty text="No hay reportes abiertos." />}
+            {openReports.length === 0 && (
+              <Empty text="No hay reportes abiertos. Cuando un vecino toque Reportar publicación, aparece acá." />
+            )}
             {openReports.map((r) => (
               <article
                 key={r.id}
@@ -138,7 +151,7 @@ export default async function ModeracionPage({
                     <>
                       <form action={setProviderStatus.bind(null, r.provider.id, "hidden")}>
                         <button className="rounded-full bg-coral/10 px-3 py-1 text-xs font-semibold text-coral">
-                          Ocultar
+                          Dar de baja
                         </button>
                       </form>
                       <form action={setProviderStatus.bind(null, r.provider.id, "outdated")}>
@@ -174,19 +187,63 @@ export default async function ModeracionPage({
                 </div>
                 <p className="mt-2 line-clamp-2 text-sm text-carbon/70">{p.description}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    href={`/prestadores/${p.id}`}
+                    className="rounded-full bg-mist px-3 py-1 text-xs font-semibold"
+                  >
+                    Ver ficha
+                  </Link>
                   <form action={setProviderStatus.bind(null, p.id, "approved")}>
                     <button className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
-                      Aprobar
-                    </button>
-                  </form>
-                  <form action={setProviderStatus.bind(null, p.id, "rejected")}>
-                    <button className="rounded-full bg-coral px-3 py-1 text-xs font-semibold text-white">
-                      Rechazar
+                      Marcar revisada
                     </button>
                   </form>
                   <form action={setProviderStatus.bind(null, p.id, "hidden")}>
-                    <button className="rounded-full bg-mist px-3 py-1 text-xs font-semibold">
-                      Ocultar
+                    <button className="rounded-full bg-coral px-3 py-1 text-xs font-semibold text-white">
+                      Dar de baja
+                    </button>
+                  </form>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {tab === "publicaciones" && (
+          <div className="flex flex-col gap-2.5">
+            {listed.length === 0 && <Empty text="No hay publicaciones visibles." />}
+            {listed.map((p) => (
+              <article
+                key={p.id}
+                className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-semibold">{p.name}</p>
+                    <p className="text-xs text-carbon/55">
+                      {p.source === "self" ? "Autopublicado" : "Cargado por vecino"} ·{" "}
+                      {timeAgo(p.createdAt)}
+                    </p>
+                  </div>
+                  <StatusBadge status={p.status} />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    href={`/prestadores/${p.id}`}
+                    className="rounded-full bg-mist px-3 py-1 text-xs font-semibold"
+                  >
+                    Ver ficha
+                  </Link>
+                  {p.status !== "approved" && (
+                    <form action={setProviderStatus.bind(null, p.id, "approved")}>
+                      <button className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
+                        Marcar revisada
+                      </button>
+                    </form>
+                  )}
+                  <form action={setProviderStatus.bind(null, p.id, "hidden")}>
+                    <button className="rounded-full bg-coral px-3 py-1 text-xs font-semibold text-white">
+                      Dar de baja
                     </button>
                   </form>
                 </div>

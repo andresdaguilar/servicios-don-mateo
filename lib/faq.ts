@@ -59,7 +59,7 @@ export const FAQ_SECTIONS = [
       },
       {
         q: "¿Puedo publicar mi propio servicio?",
-        a: "Sí. Tu ficha queda pendiente hasta que un moderador la revise. Así evitamos que cualquiera se autopublique sin filtro.",
+        a: "Sí. La ficha se ve en el barrio de inmediato y queda pendiente de revisión. Un moderador la mira si hace falta o si alguien la reporta. Si se da de baja, deja de mostrarse.",
       },
       {
         q: "¿Cómo dejo una recomendación?",
@@ -80,7 +80,7 @@ export const FAQ_SECTIONS = [
       },
       {
         q: "¿Es una comunidad cerrada?",
-        a: "Sí. Hace falta invitación para crear cuenta. Publicar el propio servicio pasa por moderación. Cualquier vecino puede reportar un dato incorrecto, un duplicado o un contenido fuera de lugar.",
+        a: "Sí. Hace falta invitación para crear cuenta. Las publicaciones se ven al instante y quedan en revisión. Cualquier vecino puede reportar algo extraño; un moderador puede dar de baja la ficha.",
       },
       {
         q: "¿Cómo protegen la cuenta?",
@@ -88,7 +88,7 @@ export const FAQ_SECTIONS = [
       },
       {
         q: "¿Qué hago si un dato está mal o alguien se porta mal?",
-        a: "En la ficha podés reportar el motivo (datos incorrectos, desactualizado, duplicado, categoría errónea u otro). Un moderador revisa reportes, publicaciones pendientes y posibles duplicados.",
+        a: "En la ficha tocá Reportar publicación, elegí un motivo y contá qué pasó. El reporte llega al panel de moderación. La ficha sigue visible hasta que un moderador la dé de baja.",
       },
     ],
   },

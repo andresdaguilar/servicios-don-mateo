@@ -15,6 +15,7 @@ export const TRUST_TAG_LABELS: Record<string, string> = Object.fromEntries(
 );
 
 export const REPORT_REASONS: { id: string; label: string }[] = [
+  { id: "suspicious", label: "Algo extraño" },
   { id: "incorrect_data", label: "Datos incorrectos" },
   { id: "outdated", label: "Contacto desactualizado" },
   { id: "offensive", label: "Contenido ofensivo" },

@@ -7,8 +7,8 @@ export default function GraciasPage() {
       <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
         <h1 className="font-serif text-2xl font-semibold text-carbon">Quedó en revisión</h1>
         <p className="mt-3 text-sm leading-relaxed text-carbon/70">
-          Un moderador va a revisar la ficha. Si hay un nombre parecido a otro contacto, también lo
-          miramos para no duplicar.
+          La ficha ya se ve en el barrio y queda pendiente de revisión. Si un vecino la reporta, un
+          moderador la analiza y puede darla de baja.
         </p>
         <Link
           href="/"

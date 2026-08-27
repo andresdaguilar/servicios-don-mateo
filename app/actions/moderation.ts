@@ -23,6 +23,8 @@ export async function setProviderStatus(providerId: string, status: ProviderStat
   await log(user.id, `status:${status}`, providerId);
   revalidatePath("/moderacion");
   revalidatePath(`/prestadores/${providerId}`);
+  revalidatePath("/");
+  revalidatePath("/buscar");
 }
 
 export async function resolveReport(reportId: string, resolution: string) {
@@ -69,7 +71,7 @@ export async function dismissReport(reportId: string) {
       if (provider?.status === "reported") {
         await prisma.provider.update({
           where: { id: report.providerId },
-          data: { status: "approved" },
+          data: { status: "pending" },
         });
       }
     }

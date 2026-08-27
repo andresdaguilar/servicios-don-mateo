@@ -39,6 +39,11 @@ export function LoginForm({ from }: { from: string }) {
             Registrate con el código del grupo
           </Link>
         </p>
+        <p className="mt-3 text-center text-sm">
+          <Link href="/faq" className="font-medium text-brand">
+            Cómo funciona la app
+          </Link>
+        </p>
       </div>
     </AppShell>
   );

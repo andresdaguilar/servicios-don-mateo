@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { TRUST_TAGS } from "@/lib/constants";
+import { TRUST_TAGS, REPORT_REASONS } from "@/lib/constants";
 import { requireUser } from "@/app/actions/auth";
 import type { ActionState } from "@/app/actions/auth";
 
@@ -120,17 +120,12 @@ export async function reportAction(
   const reason = String(formData.get("reason") ?? "");
   const details = String(formData.get("details") ?? "").trim();
 
-  const allowed = [
-    "incorrect_data",
-    "outdated",
-    "offensive",
-    "spam",
-    "duplicate",
-    "wrong_category",
-    "inappropriate",
-  ];
+  const allowed = REPORT_REASONS.map((r) => r.id);
   if (!providerId || !allowed.includes(reason)) {
     return { error: "Elegí un motivo." };
+  }
+  if (details.length < 8) {
+    return { error: "Contanos un poco más qué te resultó extraño." };
   }
 
   await prisma.report.create({
@@ -139,10 +134,24 @@ export async function reportAction(
       targetId: providerId,
       providerId,
       reason: reason as never,
-      details: details || null,
+      details,
       reporterId: user.id,
     },
   });
+
+  const provider = await prisma.provider.findUnique({
+    where: { id: providerId },
+    select: { status: true },
+  });
+  if (
+    provider &&
+    (provider.status === "pending" || provider.status === "approved")
+  ) {
+    await prisma.provider.update({
+      where: { id: providerId },
+      data: { status: "reported" },
+    });
+  }
 
   revalidatePath("/moderacion");
   revalidatePath(`/prestadores/${providerId}`);

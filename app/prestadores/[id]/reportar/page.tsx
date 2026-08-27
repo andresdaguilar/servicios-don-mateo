@@ -8,7 +8,7 @@ export default async function ReportarPage({
   params: Promise<{ id: string }>;
 }) {
   const session = await auth();
-  if (!session?.user) redirect("/login");
   const { id } = await params;
+  if (!session?.user) redirect(`/login?from=/prestadores/${id}/reportar`);
   return <ReportForm providerId={id} />;
 }

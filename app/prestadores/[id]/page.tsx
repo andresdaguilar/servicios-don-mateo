@@ -11,10 +11,12 @@ import { auth } from "@/auth";
 import { AppShell } from "@/components/layout/AppShell";
 import { Avatar } from "@/components/ui/Avatar";
 import { RatingBadge } from "@/components/ui/RatingBadge";
-import { getProviderById, isFavorite } from "@/lib/queries";
+import { getProviderById, isFavorite, isPublicProviderStatus } from "@/lib/queries";
 import { telLink, whatsappLink } from "@/lib/phone";
 import { tagLabel, timeAgo } from "@/lib/utils";
 import { toggleFavoriteAction } from "@/app/actions/social";
+import { setProviderStatus } from "@/app/actions/moderation";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 export default async function ProviderPage({
   params,
@@ -32,8 +34,8 @@ export default async function ProviderPage({
   const fav = session?.user?.id ? await isFavorite(session.user.id, id) : false;
   const photo = provider.photos[0]?.url;
   const firstName = provider.name.split(" ")[0];
-  const visible =
-    provider.status === "approved" || session?.user?.role === "moderator";
+  const isMod = session?.user?.role === "moderator";
+  const visible = isPublicProviderStatus(provider.status) || isMod;
 
   if (!visible) notFound();
 
@@ -83,6 +85,11 @@ export default async function ProviderPage({
             Ese teléfono ya estaba cargado. Podés sumar tu recomendación acá.
           </p>
         )}
+        {aviso === "publicada" && (
+          <p className="mx-4 mt-3 rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
+            Ya se ve en el barrio. Un moderador la revisa si hace falta o si alguien la reporta.
+          </p>
+        )}
 
         <div className="mt-4 flex flex-col items-center px-4 text-center">
           <Avatar name={provider.name} src={photo} size="lg" />
@@ -101,7 +108,8 @@ export default async function ProviderPage({
               {tagLabel(provider.stats.topTag.id)}
             </span>
           )}
-          <div className="mt-3 flex flex-wrap justify-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+            {isMod && <StatusBadge status={provider.status} />}
             {provider.source === "neighbor" && provider.stats.count > 0 && (
               <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold text-brand">
                 Recomendado por vecinos
@@ -200,13 +208,53 @@ export default async function ProviderPage({
           )}
         </section>
 
-        {session?.user && (
-          <div className="mx-4 mt-6 mb-4 text-center">
-            <Link href={`/prestadores/${id}/reportar`} className="text-xs font-semibold text-coral">
-              Reportar ficha
-            </Link>
+        {isMod && (
+          <div className="mx-4 mt-5 rounded-2xl bg-white px-4 py-3 ring-1 ring-black/[0.04]">
+            <p className="text-xs font-semibold uppercase tracking-wide text-carbon/45">
+              Moderación
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {provider.status !== "approved" && (
+                <form action={setProviderStatus.bind(null, id, "approved")}>
+                  <button className="rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-white">
+                    Marcar revisada
+                  </button>
+                </form>
+              )}
+              {isPublicProviderStatus(provider.status) && (
+                <form action={setProviderStatus.bind(null, id, "hidden")}>
+                  <button className="rounded-full bg-coral px-3 py-1.5 text-xs font-semibold text-white">
+                    Dar de baja
+                  </button>
+                </form>
+              )}
+              <Link
+                href="/moderacion?tab=reportes"
+                className="rounded-full bg-mist px-3 py-1.5 text-xs font-semibold"
+              >
+                Ver reportes
+              </Link>
+            </div>
           </div>
         )}
+
+        <div className="mx-4 mt-5 mb-4">
+          {session?.user ? (
+            <Link
+              href={`/prestadores/${id}/reportar`}
+              className="flex w-full items-center justify-center rounded-2xl border border-coral py-3 text-sm font-semibold text-coral"
+            >
+              Reportar publicación
+            </Link>
+          ) : (
+            <Link
+              href={`/login?from=/prestadores/${id}/reportar`}
+              className="flex w-full items-center justify-center rounded-2xl border border-coral py-3 text-sm font-semibold text-coral"
+            >
+              Reportar publicación
+            </Link>
+          )}
+        </div>
         </div>
 
         <div className="sticky bottom-0 z-10 bg-paper px-4 py-3">

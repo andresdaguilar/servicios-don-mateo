@@ -38,6 +38,7 @@ enum ReportReason {
   duplicate
   wrong_category
   inappropriate
+  suspicious
 }
 
 enum ReportStatus {

@@ -6,6 +6,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { ReplyForm } from "@/components/forms/ReplyForm";
 import { closeRequestAction } from "@/app/actions/requests";
 import { timeAgo } from "@/lib/utils";
+import { PUBLIC_PROVIDER_STATUSES } from "@/lib/queries";
 
 export default async function SolicitudDetailPage({
   params,
@@ -31,7 +32,7 @@ export default async function SolicitudDetailPage({
   if (!request) notFound();
 
   const providers = await prisma.provider.findMany({
-    where: { status: "approved" },
+    where: { status: { in: PUBLIC_PROVIDER_STATUSES } },
     select: { id: true, name: true },
     orderBy: { name: "asc" },
     take: 80,

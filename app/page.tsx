@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Heart, House, Shield, ShieldCheck, Users } from "lucide-react";
+import { Heart, House, ShieldCheck, Users } from "lucide-react";
 import { auth } from "@/auth";
 import { AppShell } from "@/components/layout/AppShell";
 import { SearchBar } from "@/components/ui/SearchBar";
@@ -19,19 +19,7 @@ export default async function HomePage() {
     : "Hola, vecino";
 
   return (
-    <AppShell
-      right={
-        session?.user?.role === "moderator" ? (
-          <Link
-            href="/moderacion"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-mist text-brand"
-            aria-label="Panel de confianza"
-          >
-            <Shield className="h-5 w-5" strokeWidth={1.75} />
-          </Link>
-        ) : undefined
-      }
-    >
+    <AppShell>
       <div className="px-4 pt-6">
         <h1 className="font-serif text-[28px] font-semibold leading-tight text-carbon">
           {hello} 👋
@@ -98,6 +86,12 @@ export default async function HomePage() {
             </div>
           ))}
         </div>
+        <Link
+          href="/faq"
+          className="mt-4 flex items-center justify-center text-sm font-medium text-brand"
+        >
+          Preguntas frecuentes
+        </Link>
       </section>
     </AppShell>
   );

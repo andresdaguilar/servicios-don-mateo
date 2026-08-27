@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { Wordmark } from "@/components/brand/Logo";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { HeaderModeration } from "@/components/layout/HeaderModeration";
 import { HeaderProfile } from "@/components/layout/HeaderProfile";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,7 @@ export function AppShell({
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
             {right}
+            <HeaderModeration />
             <HeaderProfile />
           </div>
         </header>

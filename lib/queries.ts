@@ -27,6 +27,17 @@ export function withStats(provider: ProviderWithRelations) {
 
 export type ProviderCardModel = ReturnType<typeof withStats>;
 
+/** Se ven en el barrio hasta que un moderador las da de baja. */
+export const PUBLIC_PROVIDER_STATUSES: ProviderStatus[] = [
+  ProviderStatus.pending,
+  ProviderStatus.approved,
+  ProviderStatus.reported,
+];
+
+export function isPublicProviderStatus(status: ProviderStatus) {
+  return PUBLIC_PROVIDER_STATUSES.includes(status);
+}
+
 export async function getCategories() {
   return prisma.category.findMany({ orderBy: { sortOrder: "asc" } });
 }
@@ -48,7 +59,7 @@ export async function searchProviders(opts: {
   const q = opts.q?.trim();
   const providers = await prisma.provider.findMany({
     where: {
-      status: ProviderStatus.approved,
+      status: { in: PUBLIC_PROVIDER_STATUSES },
       ...(opts.urgency
         ? { categories: { some: { category: { isUrgency: true } } } }
         : {}),
@@ -82,7 +93,7 @@ export async function searchProviders(opts: {
 
 export async function getRecommendedNearby(limit = 8) {
   const providers = await prisma.provider.findMany({
-    where: { status: ProviderStatus.approved },
+    where: { status: { in: PUBLIC_PROVIDER_STATUSES } },
     include: providerInclude,
     orderBy: [{ lastRecommendedAt: "desc" }, { createdAt: "desc" }],
     take: limit,
@@ -127,7 +138,7 @@ export async function getFavorites(userId: string) {
     orderBy: { createdAt: "desc" },
   });
   return favs
-    .filter((f) => f.provider.status === ProviderStatus.approved)
+    .filter((f) => isPublicProviderStatus(f.provider.status))
     .map((f) => withStats(f.provider));
 }
 
