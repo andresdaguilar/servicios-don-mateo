@@ -15,6 +15,7 @@ import { telLink, whatsappLink } from "@/lib/phone";
 import { tagLabel, timeAgo } from "@/lib/utils";
 import { toggleFavoriteAction } from "@/app/actions/social";
 import { setProviderStatus } from "@/app/actions/moderation";
+import { canEditProvider } from "@/lib/permissions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 
@@ -35,7 +36,8 @@ export default async function ProviderPage({
   const photo = provider.photos[0]?.url;
   const firstName = provider.name.split(" ")[0];
   const isMod = session?.user?.role === "moderator";
-  const visible = isPublicProviderStatus(provider.status) || isMod;
+  const canEdit = canEditProvider(session?.user, provider);
+  const visible = isPublicProviderStatus(provider.status) || isMod || canEdit;
 
   if (!visible) notFound();
 
@@ -69,6 +71,11 @@ export default async function ProviderPage({
         {aviso === "publicada" && (
           <p className="mx-4 mt-3 rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand-ink">
             Ya se ve en el barrio. Un moderador la revisa si hace falta o si alguien la reporta.
+          </p>
+        )}
+        {aviso === "editada" && (
+          <p className="mx-4 mt-3 rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand-ink">
+            Guardamos los cambios.
           </p>
         )}
 
@@ -114,6 +121,14 @@ export default async function ProviderPage({
               <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold text-brand-ink">
                 Recomendado por vecinos
               </span>
+            )}
+            {canEdit && (
+              <Link
+                href={`/prestadores/${id}/editar`}
+                className="rounded-full bg-mist px-2.5 py-1 text-[11px] font-semibold text-brand-ink"
+              >
+                Editar ficha
+              </Link>
             )}
           </div>
         </div>
@@ -223,6 +238,12 @@ export default async function ProviderPage({
                   </SubmitButton>
                 </form>
               )}
+              <Link
+                href={`/prestadores/${id}/editar`}
+                className="rounded-full bg-mist px-3 py-1.5 text-xs font-semibold"
+              >
+                Editar
+              </Link>
               <Link
                 href="/moderacion?tab=reportes"
                 className="rounded-full bg-mist px-3 py-1.5 text-xs font-semibold"

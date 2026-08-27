@@ -124,48 +124,79 @@ export async function createProviderAction(
   });
 }
 
-export async function updateProviderAction(providerId: string, formData: FormData) {
-  const user = await requireUser();
-  const provider = await prisma.provider.findUnique({ where: { id: providerId } });
-  if (!provider) return { error: "No existe esa ficha." };
+export async function updateProviderAction(
+  providerId: string,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  return runAction(async () => {
+    const user = await requireUser();
+    const provider = await prisma.provider.findUnique({ where: { id: providerId } });
+    if (!provider) return { error: "No existe esa ficha." };
 
-  const isOwner = provider.ownerId === user.id;
-  const isMod = user.role === "moderator";
-  if (!isOwner && !isMod) return { error: "No podés editar esta ficha." };
-
-  const name = String(formData.get("name") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const zone = String(formData.get("zone") ?? "").trim();
-  const license = String(formData.get("license") ?? "").trim();
-  const phoneRaw = String(formData.get("phone") ?? "").trim();
-
-  if (name.length < 2) {
-    return { error: "Completá el nombre." };
-  }
-
-  const phone = phoneRaw ? normalizePhone(phoneRaw) : provider.phone;
-  if (phone !== provider.phone) {
-    const clash = await findProviderByPhone(phone);
-    if (clash && clash.id !== provider.id) {
-      return { error: "Ese teléfono ya está en otra ficha." };
+    const isOwner = provider.ownerId === user.id;
+    const isCreator = provider.createdById === user.id;
+    const isMod = user.role === "moderator";
+    if (!isOwner && !isCreator && !isMod) {
+      return { error: "No podés editar esta ficha." };
     }
-  }
 
-  const sensitive = phone !== provider.phone || name !== provider.name;
-  await prisma.provider.update({
-    where: { id: providerId },
-    data: {
-      name,
-      description,
-      zone,
-      license: license || null,
-      phone,
-      whatsapp: phone,
-      status: isOwner && sensitive ? ProviderStatus.pending : provider.status,
-    },
+    const categoryIds = formData.getAll("categoryIds").map(String).filter(Boolean);
+    const parsed = providerSchema.omit({ source: true }).safeParse({
+      name: formData.get("name"),
+      description: String(formData.get("description") ?? "") || undefined,
+      phone: formData.get("phone"),
+      zone: String(formData.get("zone") ?? "") || undefined,
+      license: String(formData.get("license") ?? "") || undefined,
+      categoryIds,
+    });
+    if (!parsed.success) {
+      return { error: parsed.error.issues[0]?.message ?? "Revisá los datos e intentá de nuevo." };
+    }
+
+    const phone = normalizePhone(parsed.data.phone);
+    if (phone.length < 10) return { error: "El teléfono no parece válido." };
+    if (phone !== provider.phone) {
+      const clash = await findProviderByPhone(phone);
+      if (clash && clash.id !== provider.id) {
+        return { error: "Ese teléfono ya está en otra ficha." };
+      }
+    }
+
+    const photos = await uploadPhotos(formData);
+    const sensitive = phone !== provider.phone || parsed.data.name.trim() !== provider.name;
+    const nextStatus =
+      !isMod && (isOwner || isCreator) && sensitive ? ProviderStatus.pending : provider.status;
+
+    await prisma.$transaction(async (tx) => {
+      await tx.provider.update({
+        where: { id: providerId },
+        data: {
+          name: parsed.data.name.trim(),
+          description: parsed.data.description?.trim() ?? "",
+          zone: parsed.data.zone?.trim() ?? "",
+          license: parsed.data.license?.trim() || null,
+          phone,
+          whatsapp: phone,
+          status: nextStatus,
+        },
+      });
+      await tx.providerCategory.deleteMany({ where: { providerId } });
+      await tx.providerCategory.createMany({
+        data: parsed.data.categoryIds.map((categoryId) => ({ providerId, categoryId })),
+      });
+      if (photos.length) {
+        await tx.providerPhoto.createMany({
+          data: photos.map((url) => ({ providerId, url })),
+        });
+      }
+    });
+
+    revalidatePath(`/prestadores/${providerId}`);
+    revalidatePath("/moderacion");
+    revalidatePath("/");
+    revalidatePath("/buscar");
+    revalidatePath("/cuenta");
+    redirect(`/prestadores/${providerId}?aviso=editada`);
   });
-
-  revalidatePath(`/prestadores/${providerId}`);
-  revalidatePath("/moderacion");
-  return { ok: true };
 }

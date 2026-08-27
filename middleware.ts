@@ -37,6 +37,15 @@ export default auth((req) => {
     }
   }
 
+  if (/^\/prestadores\/[^/]+\/editar$/.test(pathname) && !isLoggedIn) {
+    const url = req.nextUrl.clone();
+    const from = `${pathname}${req.nextUrl.search}`;
+    url.pathname = "/login";
+    url.search = "";
+    url.searchParams.set("from", from);
+    return NextResponse.redirect(url);
+  }
+
   return NextResponse.next();
 });
 
@@ -44,6 +53,7 @@ export const config = {
   matcher: [
     "/moderacion/:path*",
     "/prestadores/nuevo",
+    "/prestadores/:id/editar",
     "/recomendar/:path*",
     "/favoritos",
     "/cuenta/:path*",

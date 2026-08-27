@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Shield } from "lucide-react";
 import { ProviderStatus } from "@prisma/client";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SubmitButton } from "@/components/ui/SubmitButton";
@@ -12,13 +14,15 @@ import {
   updateCategoryAction,
 } from "@/app/actions/moderation";
 import { REPORT_REASONS } from "@/lib/constants";
+import { formatPhone } from "@/lib/phone";
 import { PUBLIC_PROVIDER_STATUSES } from "@/lib/queries";
 import { cn, timeAgo } from "@/lib/utils";
 
 const TABS = [
+  { id: "usuarios", label: "Usuarios" },
+  { id: "publicaciones", label: "Publicaciones" },
   { id: "reportes", label: "Reportes" },
   { id: "pendientes", label: "Pendientes" },
-  { id: "publicaciones", label: "Publicaciones" },
   { id: "duplicados", label: "Duplicados" },
   { id: "historial", label: "Historial" },
   { id: "categorias", label: "Categorías" },
@@ -27,12 +31,14 @@ const TABS = [
 export default async function ModeracionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; autor?: string }>;
 }) {
-  const { tab: tabRaw } = await searchParams;
-  const tab = TABS.some((t) => t.id === tabRaw) ? tabRaw : "reportes";
+  const { tab: tabRaw, autor } = await searchParams;
+  const session = await auth();
+  if (session?.user?.role !== "moderator") redirect("/");
+  const tab = TABS.some((t) => t.id === tabRaw) ? tabRaw : "usuarios";
 
-  const [openReports, pending, listed, duplicates, events, categories, allProviders] =
+  const [openReports, pending, listed, duplicates, events, categories, allProviders, users] =
     await Promise.all([
       prisma.report.findMany({
         where: { status: "open" },
@@ -47,7 +53,11 @@ export default async function ModeracionPage({
         orderBy: { createdAt: "desc" },
       }),
       prisma.provider.findMany({
-        where: { status: { in: PUBLIC_PROVIDER_STATUSES } },
+        where: {
+          status: { in: PUBLIC_PROVIDER_STATUSES },
+          ...(autor ? { createdById: autor } : {}),
+        },
+        include: { createdBy: { select: { displayName: true } } },
         orderBy: { createdAt: "desc" },
       }),
       prisma.provider.findMany({
@@ -67,6 +77,19 @@ export default async function ModeracionPage({
         select: { id: true, name: true, status: true },
         orderBy: { name: "asc" },
       }),
+      prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          displayName: true,
+          phone: true,
+          role: true,
+          createdAt: true,
+          _count: { select: { providersCreated: true } },
+          ownedProvider: { select: { id: true, name: true } },
+        },
+      }),
     ]);
 
   return (
@@ -74,7 +97,7 @@ export default async function ModeracionPage({
       <div className="px-4 pt-5">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-brand-ink" />
-          <h1 className="font-serif text-2xl font-semibold">Panel de confianza</h1>
+          <h1 className="font-serif text-2xl font-semibold">Panel admin</h1>
         </div>
         <div className="mt-4 flex gap-1 overflow-x-auto">
           {TABS.map((t) => (
@@ -88,6 +111,11 @@ export default async function ModeracionPage({
               )}
             >
               {t.label}
+              {t.id === "usuarios" && (
+                <span className="ml-1 rounded-full bg-mist px-1.5 text-[10px] text-carbon">
+                  {users.length}
+                </span>
+              )}
               {t.id === "reportes" && openReports.length > 0 && (
                 <span className="ml-1 rounded-full bg-coral px-1.5 text-[10px] text-white">
                   {openReports.length}
@@ -104,6 +132,55 @@ export default async function ModeracionPage({
       </div>
 
       <div className="px-4 py-4 pb-8">
+        {tab === "usuarios" && (
+          <div className="flex flex-col gap-2.5">
+            {users.length === 0 && <Empty text="Todavía no hay cuentas." />}
+            {users.map((u) => (
+              <article
+                key={u.id}
+                className="rounded-2xl bg-card px-4 py-3 ring-1 ring-line"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold">{u.name}</p>
+                    <p className="text-xs text-carbon/55">
+                      {u.displayName} · {formatPhone(u.phone)}
+                    </p>
+                    <p className="mt-1 text-[11px] uppercase tracking-wide text-carbon/40">
+                      {u.role === "moderator"
+                        ? "Moderador"
+                        : u.role === "provider"
+                          ? "Prestador"
+                          : "Vecino"}
+                      {" · "}
+                      {timeAgo(u.createdAt)}
+                    </p>
+                  </div>
+                  <p className="text-xs text-carbon/50">
+                    {u._count.providersCreated}{" "}
+                    {u._count.providersCreated === 1 ? "ficha" : "fichas"}
+                  </p>
+                </div>
+                {u.ownedProvider && (
+                  <p className="mt-2 text-xs text-carbon/60">
+                    Oficio propio: {u.ownedProvider.name}
+                  </p>
+                )}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {u._count.providersCreated > 0 && (
+                    <Link
+                      href={`/moderacion?tab=publicaciones&autor=${u.id}`}
+                      className="rounded-full bg-mist px-3 py-1 text-xs font-semibold"
+                    >
+                      Ver publicaciones
+                    </Link>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
         {tab === "reportes" && (
           <div className="flex flex-col gap-2.5">
             {openReports.length === 0 && (
@@ -194,6 +271,12 @@ export default async function ModeracionPage({
                   >
                     Ver ficha
                   </Link>
+                  <Link
+                    href={`/prestadores/${p.id}/editar`}
+                    className="rounded-full bg-mist px-3 py-1 text-xs font-semibold"
+                  >
+                    Editar
+                  </Link>
                   <form action={setProviderStatus.bind(null, p.id, "approved")}>
                     <SubmitButton className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">
                       Marcar revisada
@@ -212,6 +295,14 @@ export default async function ModeracionPage({
 
         {tab === "publicaciones" && (
           <div className="flex flex-col gap-2.5">
+            {autor && (
+              <p className="text-xs text-carbon/55">
+                Filtrado por quien las cargó.{" "}
+                <Link href="/moderacion?tab=publicaciones" className="font-semibold text-brand-ink">
+                  Ver todas
+                </Link>
+              </p>
+            )}
             {listed.length === 0 && <Empty text="No hay publicaciones visibles." />}
             {listed.map((p) => (
               <article
@@ -222,7 +313,8 @@ export default async function ModeracionPage({
                   <div>
                     <p className="font-semibold">{p.name}</p>
                     <p className="text-xs text-carbon/55">
-                      {p.source === "self" ? "Autopublicado" : "Cargado por vecino"} ·{" "}
+                      {p.source === "self" ? "Autopublicado" : "Cargado por vecino"}
+                      {p.createdBy?.displayName ? ` · ${p.createdBy.displayName}` : ""} ·{" "}
                       {timeAgo(p.createdAt)}
                     </p>
                   </div>
@@ -234,6 +326,12 @@ export default async function ModeracionPage({
                     className="rounded-full bg-mist px-3 py-1 text-xs font-semibold"
                   >
                     Ver ficha
+                  </Link>
+                  <Link
+                    href={`/prestadores/${p.id}/editar`}
+                    className="rounded-full bg-mist px-3 py-1 text-xs font-semibold"
+                  >
+                    Editar
                   </Link>
                   {p.status !== "approved" && (
                     <form action={setProviderStatus.bind(null, p.id, "approved")}>
@@ -266,6 +364,14 @@ export default async function ModeracionPage({
                   <StatusBadge status={p.status} />
                 </div>
                 <p className="text-xs text-carbon/50">{p.phone}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Link
+                    href={`/prestadores/${p.id}/editar`}
+                    className="rounded-full bg-mist px-3 py-1 text-xs font-semibold"
+                  >
+                    Editar
+                  </Link>
+                </div>
                 <MergeForm duplicateId={p.id} providers={allProviders.filter((x) => x.id !== p.id)} />
               </article>
             ))}

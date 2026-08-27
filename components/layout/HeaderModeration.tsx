@@ -18,7 +18,7 @@ export function HeaderModeration() {
     <Link
       href="/moderacion"
       prefetch
-      aria-label="Panel de moderación"
+      aria-label="Panel admin"
       className={cn(
         "relative flex h-10 w-10 items-center justify-center rounded-full bg-mist",
         active ? "text-brand-ink" : "text-carbon/70",
