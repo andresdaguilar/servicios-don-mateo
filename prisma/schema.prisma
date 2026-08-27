@@ -1,0 +1,247 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  neighbor
+  provider
+  moderator
+}
+
+enum ProviderStatus {
+  pending
+  approved
+  reported
+  hidden
+  outdated
+  rejected
+  duplicate
+}
+
+enum ProviderSource {
+  neighbor
+  self
+}
+
+enum ReportReason {
+  incorrect_data
+  outdated
+  offensive
+  spam
+  duplicate
+  wrong_category
+  inappropriate
+}
+
+enum ReportStatus {
+  open
+  resolved
+  dismissed
+}
+
+enum ReportTarget {
+  provider
+  comment
+  recommendation
+}
+
+enum RequestStatus {
+  open
+  closed
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  name                String
+  displayName         String
+  email               String    @unique
+  passwordHash        String
+  role                Role      @default(neighbor)
+  communityVerifiedAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  providersCreated Provider[]         @relation("CreatedBy")
+  ownedProvider    Provider?          @relation("Owner")
+  recommendations  Recommendation[]
+  comments         Comment[]
+  favorites        Favorite[]
+  reports          Report[]           @relation("Reporter")
+  requests         Request[]
+  requestReplies   RequestReply[]
+  moderationEvents ModerationEvent[]
+}
+
+model Category {
+  id        String             @id @default(cuid())
+  slug      String             @unique
+  name      String
+  icon      String
+  isUrgency Boolean            @default(false)
+  sortOrder Int                @default(0)
+  providers ProviderCategory[]
+  requests  Request[]
+}
+
+model Provider {
+  id                 String         @id @default(cuid())
+  name               String
+  description        String
+  phone              String         @unique
+  whatsapp           String?
+  zone               String
+  license            String?
+  status             ProviderStatus @default(pending)
+  source             ProviderSource @default(neighbor)
+  possibleDuplicate  Boolean        @default(false)
+  createdById        String
+  createdBy          User           @relation("CreatedBy", fields: [createdById], references: [id])
+  ownerId            String?        @unique
+  owner              User?          @relation("Owner", fields: [ownerId], references: [id])
+  duplicateOfId      String?
+  duplicateOf        Provider?      @relation("Duplicates", fields: [duplicateOfId], references: [id])
+  duplicates         Provider[]     @relation("Duplicates")
+  lastRecommendedAt  DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  categories      ProviderCategory[]
+  photos          ProviderPhoto[]
+  recommendations Recommendation[]
+  comments        Comment[]
+  favorites       Favorite[]
+  reports         Report[]
+  requestReplies  RequestReply[]
+
+  @@index([status])
+  @@index([name])
+}
+
+model ProviderCategory {
+  providerId String
+  categoryId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([providerId, categoryId])
+}
+
+model ProviderPhoto {
+  id         String   @id @default(cuid())
+  url        String
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+model Recommendation {
+  id             String              @id @default(cuid())
+  comment        String
+  hired          Boolean
+  wouldCallAgain Boolean
+  rating         Int
+  userId         String
+  providerId     String
+  createdAt      DateTime            @default(now())
+  user           User                @relation(fields: [userId], references: [id])
+  provider       Provider            @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  tags           RecommendationTag[]
+
+  @@unique([userId, providerId])
+}
+
+model RecommendationTag {
+  id               String         @id @default(cuid())
+  tag              String
+  recommendationId String
+  recommendation   Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+
+  @@index([tag])
+}
+
+model Comment {
+  id          String   @id @default(cuid())
+  body        String
+  displayName String
+  userId      String
+  providerId  String
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+  provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+}
+
+model Favorite {
+  userId     String
+  providerId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@id([userId, providerId])
+}
+
+model Report {
+  id         String       @id @default(cuid())
+  targetType ReportTarget
+  targetId   String
+  reason     ReportReason
+  details    String?
+  status     ReportStatus @default(open)
+  reporterId String
+  reporter   User         @relation("Reporter", fields: [reporterId], references: [id])
+  providerId String?
+  provider   Provider?    @relation(fields: [providerId], references: [id])
+  createdAt  DateTime     @default(now())
+  resolvedAt DateTime?
+  resolution String?
+
+  @@index([status])
+}
+
+model Request {
+  id         String         @id @default(cuid())
+  body       String
+  urgent     Boolean        @default(false)
+  status     RequestStatus  @default(open)
+  userId     String
+  user       User           @relation(fields: [userId], references: [id])
+  categoryId String?
+  category   Category?      @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime       @default(now())
+  replies    RequestReply[]
+}
+
+model RequestReply {
+  id         String    @id @default(cuid())
+  body       String
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  requestId  String
+  request    Request   @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  providerId String?
+  provider   Provider? @relation(fields: [providerId], references: [id])
+  createdAt  DateTime  @default(now())
+}
+
+model UrgencyContact {
+  id        String @id @default(cuid())
+  name      String
+  phone     String
+  note      String?
+  sortOrder Int    @default(0)
+}
+
+model ModerationEvent {
+  id        String   @id @default(cuid())
+  action    String
+  details   String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
